@@ -1,0 +1,34 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.api.recommendation import router as recommendation_router
+from app.db.database import Base, engine
+from app.api.auth import router as auth_router
+from app.db.database import Base, engine
+from app.api.transactions import router as transaction_router
+from app.api.advisor import router as advisor_router
+import app.models.user
+import app.models.transaction
+import app.models.deutsche_bank_card
+import app.models.reward_rule
+
+
+import app.models.user
+
+app = FastAPI(title="Finance AI Backend")
+app.include_router(transaction_router)
+app.include_router(advisor_router)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4200"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+Base.metadata.create_all(bind=engine)
+app.include_router(recommendation_router)
+app.include_router(auth_router)
+
+@app.get("/health")
+def health():
+    return {"status": "backend running"}

@@ -1,0 +1,69 @@
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
+from app.db.database import get_db
+from app.models.transaction import Transaction
+from app.models.deutsche_bank_card import DeutscheBankCard
+from app.models.reward_rule import RewardRule
+from app.models.scoring_weight import ScoringWeight
+from app.services.spend_analyzer import analyze_spending
+from app.services.behavior_analyzer import identify_persona
+from app.services.card_scoring import score_card
+from app.services.ai_advisor import generate_ai_advice
+
+router = APIRouter(prefix="/api/advisor", tags=["advisor"])
+
+
+@router.get("/user/{user_id}")
+def advise_user(user_id: int, db: Session = Depends(get_db)):
+    transactions = db.query(Transaction).filter(Transaction.user_id == user_id).all()
+
+    spend_summary = analyze_spending(transactions)
+    personas = identify_persona(spend_summary)
+
+    weight_rows = db.query(ScoringWeight).all()
+    weights = {row.factor: row.weight for row in weight_rows}
+
+    cards = db.query(DeutscheBankCard).all()
+
+    recommendations = []
+
+    for card in cards:
+        rules = db.query(RewardRule).filter(RewardRule.card_id == card.id).all()
+
+        scored_card = score_card(
+            card=card,
+            rules=rules,
+            spend_summary=spend_summary,
+            personas=personas,
+            weights=weights
+        )
+
+        recommendations.append(scored_card)
+
+    recommendations.sort(key=lambda x: x["score"], reverse=True)
+
+    best_card = recommendations[0] if recommendations else None
+    ai_advice = None
+
+    if best_card:
+     ai_advice = generate_ai_advice(
+        spend_summary=spend_summary,
+        personas=personas,
+        best_card=best_card,
+        all_recommendations=recommendations
+     )
+
+    return {
+    "user_id": user_id,
+    "spend_summary": spend_summary,
+    "personas": personas,
+    "best_card": best_card,
+    "all_recommendations": recommendations,
+    "ai_advice": ai_advice,
+    "explanation": (
+        ai_advice["summary"]
+        if ai_advice
+        else "No card recommendation is available."
+    )
+   }
