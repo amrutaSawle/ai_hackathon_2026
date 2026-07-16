@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
 from app.db.database import Base
+from sqlalchemy.orm import relationship
 
 class Transaction(Base):
     __tablename__ = "transactions"
@@ -11,3 +12,9 @@ class Transaction(Base):
     amount = Column(Float, nullable=False)
     transaction_date = Column(Date, nullable=False)
     card_used = Column(String(150), nullable=True)
+    ai_analysis = relationship(
+      "TransactionAIAnalysis",
+       back_populates="transaction",
+       uselist=False,
+       cascade="all, delete-orphan",
+    )

@@ -10,6 +10,11 @@ import app.models.transaction
 import app.models.deutsche_bank_card
 import app.models.reward_rule
 import app.models.scoring_weight
+import app.models.spending_category
+import app.models.merchant_category
+import app.models.transaction_ai_analysis
+import app.models.financial_event
+import app.models.financial_event_transaction
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

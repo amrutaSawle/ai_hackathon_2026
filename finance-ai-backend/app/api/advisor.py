@@ -10,13 +10,22 @@ from app.services.spend_analyzer import analyze_spending
 from app.services.behavior_analyzer import identify_persona
 from app.services.card_scoring import score_card
 from app.services.ai_advisor import generate_ai_advice
+from sqlalchemy.orm import Session, joinedload
 
 router = APIRouter(prefix="/api/advisor", tags=["advisor"])
 
 
 @router.get("/user/{user_id}")
 def advise_user(user_id: int, db: Session = Depends(get_db)):
-    transactions = db.query(Transaction).filter(Transaction.user_id == user_id).all()
+    transactions = (
+    db.query(Transaction)
+    .options(joinedload(Transaction.ai_analysis))
+    .filter(Transaction.user_id == user_id)
+    .order_by(
+        Transaction.transaction_date.desc(),
+        Transaction.id.desc(),
+    )
+    .all() )
 
     spend_summary = analyze_spending(transactions)
     personas = identify_persona(spend_summary)
