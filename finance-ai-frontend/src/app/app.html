@@ -1,0 +1,82 @@
+<div class="mobile-app-shell">
+  <header class="app-header">
+    <a class="brand" routerLink="/home">
+      <div class="brand-logo">DB</div>
+
+      <div class="brand-text">
+        <strong>Finance AI</strong>
+        <span>Deutsche Bank</span>
+      </div>
+    </a>
+
+    <div class="header-actions">
+      <button
+        class="header-button"
+        type="button"
+        aria-label="Open AI chat"
+        routerLink="/chat"
+      >
+        <span class="material-icons">auto_awesome</span>
+      </button>
+
+      <button
+        class="profile-button"
+        type="button"
+        aria-label="Open profile"
+        routerLink="/profile"
+      >
+        AT
+      </button>
+    </div>
+  </header>
+
+  <main class="app-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <nav class="bottom-navigation">
+    <a
+      routerLink="/home"
+      routerLinkActive="active"
+    >
+      <span class="material-icons">home</span>
+      <small>Home</small>
+    </a>
+
+    <a
+      routerLink="/wallet"
+      routerLinkActive="active"
+    >
+      <span class="material-icons">account_balance_wallet</span>
+      <small>Wallet</small>
+    </a>
+
+    <a
+      class="advisor-navigation"
+      routerLink="/advisor"
+      routerLinkActive="active"
+    >
+      <span class="advisor-navigation-icon">
+        <span class="material-icons">psychology</span>
+      </span>
+
+      <small>Advisor</small>
+    </a>
+
+    <a
+      routerLink="/spending"
+      routerLinkActive="active"
+    >
+      <span class="material-icons">query_stats</span>
+      <small>Spending</small>
+    </a>
+
+    <a
+      routerLink="/profile"
+      routerLinkActive="active"
+    >
+      <span class="material-icons">person</span>
+      <small>Profile</small>
+    </a>
+  </nav>
+</div>

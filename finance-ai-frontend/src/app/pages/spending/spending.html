@@ -1,0 +1,202 @@
+<section class="spending-header">
+  <div>
+    <p>Spending Analysis</p>
+    <h1>Your spending overview</h1>
+    <span>Track categories, transactions and spending patterns.</span>
+  </div>
+
+  <a class="add-transaction-button" routerLink="/transactions">
+    <span class="material-icons">add</span>
+  </a>
+</section>
+
+<div class="status-card" *ngIf="loading">
+  Loading spending information...
+</div>
+
+<div class="status-card error-card" *ngIf="errorMessage">
+  {{ errorMessage }}
+</div>
+
+<ng-container *ngIf="advisorResult && !loading">
+  <section class="total-spend-card">
+    <div class="total-spend-heading">
+      <div>
+        <span>Total Spending</span>
+
+        <strong>
+          ₹{{ advisorResult.spend_summary.total_spend }}
+        </strong>
+      </div>
+
+      <div class="spend-icon">
+        <span class="material-icons">query_stats</span>
+      </div>
+    </div>
+
+    <div class="top-category">
+      <span>Top spending category</span>
+
+      <strong>
+        {{ advisorResult.spend_summary.top_category }}
+      </strong>
+    </div>
+  </section>
+<section
+  class="spending-panel ai-spending-insight"
+  *ngIf="advisorResult.ai_advice as aiAdvice"
+>
+  <div class="ai-insight-icon" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M12 3L13.5 7.5L18 9L13.5 10.5L12 15L10.5 10.5L6 9L10.5 7.5L12 3Z"
+        fill="currentColor"
+      />
+
+      <path
+        d="M18.5 14L19.25 16.25L21.5 17L19.25 17.75L18.5 20L17.75 17.75L15.5 17L17.75 16.25L18.5 14Z"
+        fill="currentColor"
+      />
+
+      <path
+        d="M5 14L5.75 16.25L8 17L5.75 17.75L5 20L4.25 17.75L2 17L4.25 16.25L5 14Z"
+        fill="currentColor"
+      />
+    </svg>
+  </div>
+
+  <div class="ai-insight-content">
+    <span class="ai-insight-label">AI Spending Insight</span>
+
+    <h2>
+      {{ aiAdvice.summary }}
+    </h2>
+
+    <a routerLink="/advisor">
+      <span>View full AI analysis</span>
+
+      <svg
+        viewBox="0 0 24 24"
+        width="16"
+        height="16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M5 12H19M13 6L19 12L13 18"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </a>
+  </div>
+</section>
+
+  <section class="spending-panel">
+    <div class="panel-heading">
+      <div>
+        <span>Category Analysis</span>
+        <h2>Spending by category</h2>
+      </div>
+
+      <small>Category summary</small>
+    </div>
+
+    <div
+      class="category-item"
+      *ngFor="
+        let item of advisorResult.spend_summary.category_totals | keyvalue
+      "
+    >
+      <div
+        class="category-icon"
+        [ngClass]="getCategoryTheme(item.key)"
+      >
+        <span class="material-icons">
+          {{ getCategoryIcon(item.key) }}
+        </span>
+      </div>
+
+      <div class="category-details">
+        <div class="category-title">
+          <strong>{{ item.key }}</strong>
+
+          <span>
+            {{ getCategoryPercentage(+item.value) }}%
+          </span>
+        </div>
+
+        <div class="progress-track">
+          <div
+            class="progress-value"
+            [style.width.%]="getCategoryPercentage(+item.value)"
+          ></div>
+        </div>
+
+        <small>
+          ₹{{ item.value }}
+        </small>
+      </div>
+    </div>
+  </section>
+
+  <section class="spending-panel">
+    <div class="panel-heading">
+      <div>
+        <span>Activity</span>
+        <h2>Recent transactions</h2>
+      </div>
+
+      <a routerLink="/transactions">
+        View all
+      </a>
+    </div>
+
+    <div
+      class="transaction-item"
+      *ngFor="let transaction of transactions | slice:0:5"
+    >
+      <div
+        class="transaction-icon"
+        [ngClass]="getCategoryTheme(transaction.category)"
+      >
+        <span class="material-icons">
+          {{ getCategoryIcon(transaction.category) }}
+        </span>
+      </div>
+
+      <div class="transaction-details">
+        <strong>{{ transaction.merchant }}</strong>
+
+        <span>
+          {{ transaction.category }} ·
+          {{ formatDate(transaction.transaction_date) }}
+        </span>
+      </div>
+
+      <div class="transaction-amount">
+        <strong>
+          -₹{{ transaction.amount }}
+        </strong>
+
+        <small>
+          {{ transaction.card_used || 'Payment' }}
+        </small>
+      </div>
+    </div>
+
+    <p class="empty-message" *ngIf="transactions.length === 0">
+      No transactions are available.
+    </p>
+  </section>
+
+</ng-container>

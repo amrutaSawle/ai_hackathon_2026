@@ -1,0 +1,283 @@
+:host {
+  display: block;
+}
+
+.welcome-section {
+  padding: 4px 4px 18px;
+}
+
+.welcome-section p,
+.welcome-section h1,
+.welcome-section span {
+  margin: 0;
+}
+
+.welcome-section p {
+  color: #667085;
+  font-size: 12px;
+}
+
+.welcome-section h1 {
+  margin: 5px 0 7px;
+  color: #172033;
+  font-size: 25px;
+}
+
+.welcome-section span {
+  color: #98a2b3;
+  font-size: 12px;
+}
+
+.loading-card,
+.home-panel,
+.balance-card {
+  border-radius: 22px;
+  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
+}
+
+.loading-card {
+  padding: 22px;
+  background: white;
+}
+
+.balance-card {
+  padding: 23px;
+  color: white;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(106, 151, 255, 0.9),
+      transparent 32%
+    ),
+    linear-gradient(135deg, #081c40, #1748c9);
+}
+
+.balance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 11px;
+}
+
+.balance-card > strong {
+  display: block;
+  margin: 15px 0 8px;
+  font-size: 34px;
+}
+
+.balance-card small {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 17px 0;
+}
+
+.quick-actions a {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 7px;
+  color: #475467;
+  text-decoration: none;
+}
+
+.quick-icon {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 17px;
+  background: white;
+  box-shadow: 0 9px 22px rgba(16, 24, 40, 0.08);
+}
+
+.quick-icon .material-icons {
+  font-size: 23px;
+}
+
+.add-icon {
+  color: #1748c9;
+}
+
+.ai-icon {
+  color: #6941c6;
+}
+
+.card-icon {
+  color: #079455;
+}
+
+.chat-icon {
+  color: #d97706;
+}
+
+.quick-actions small {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.home-panel {
+  margin-top: 15px;
+  padding: 18px;
+  background: white;
+}
+
+.panel-title {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.panel-title span,
+.panel-title h2 {
+  display: block;
+  margin: 0;
+}
+
+.panel-title span {
+  color: #667085;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.panel-title h2 {
+  margin-top: 4px;
+  font-size: 17px;
+}
+
+.panel-title a {
+  color: #1748c9;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.recommended-card-row {
+  display: grid;
+  grid-template-columns: 135px minmax(0, 1fr);
+  align-items: center;
+  gap: 15px;
+}
+
+.small-card-visual {
+  height: 86px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  padding: 12px;
+  border-radius: 15px;
+  color: white;
+  background: linear-gradient(135deg, #0a234c, #1748c9 60%, #5686ff);
+  box-shadow: 0 13px 25px rgba(23, 72, 201, 0.24);
+}
+
+.small-card-visual strong {
+  align-self: flex-end;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.small-card-visual small {
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.card-logo {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.recommendation-copy {
+  min-width: 0;
+}
+
+.recommendation-copy h3 {
+  margin: 0 0 7px;
+  font-size: 14px;
+}
+
+.recommendation-copy p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: #667085;
+  font-size: 10px;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.recommendation-score {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 9px;
+  font-size: 10px;
+}
+
+.recommendation-score span {
+  color: #667085;
+}
+
+.recommendation-score strong {
+  color: #1748c9;
+}
+
+.category-row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 0;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.category-row:last-child {
+  border-bottom: 0;
+}
+
+.category-icon {
+  width: 39px;
+  height: 39px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  color: #1748c9;
+  background: #eef4ff;
+}
+
+.category-icon .material-icons {
+  font-size: 19px;
+}
+
+.category-copy strong,
+.category-copy span {
+  display: block;
+}
+
+.category-copy strong {
+  font-size: 12px;
+}
+
+.category-copy span {
+  margin-top: 3px;
+  color: #98a2b3;
+  font-size: 9px;
+}
+
+.category-row > b {
+  font-size: 11px;
+}

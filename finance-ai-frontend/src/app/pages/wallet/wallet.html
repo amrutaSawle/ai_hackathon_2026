@@ -1,0 +1,169 @@
+<section class="wallet-header">
+  <div>
+    <p>My Wallet</p>
+    <h1>Your Deutsche Bank cards</h1>
+    <span>Swipe to compare cards and benefits.</span>
+  </div>
+
+  <button
+    type="button"
+    class="add-card-button"
+    aria-label="Add card"
+  >
+    <span>+</span>
+  </button>
+</section>
+
+<div class="status-card" *ngIf="loading">
+  Loading your cards...
+</div>
+
+<div class="status-card error-card" *ngIf="errorMessage">
+  {{ errorMessage }}
+</div>
+
+<ng-container *ngIf="advisorResult && !loading">
+  <section
+    #walletCarousel
+    class="wallet-carousel"
+    (scroll)="onCarouselScroll()"
+  >
+    <article
+      class="wallet-card-item"
+      *ngFor="let card of advisorResult.all_recommendations"
+      [class.active-wallet-card]="
+        selectedCard?.card_name === card.card_name
+      "
+      (click)="selectCard(card)"
+    >
+      <div
+        class="bank-card"
+        [ngClass]="getCardTheme(card.card_name)"
+      >
+        <div class="card-decoration decoration-one"></div>
+        <div class="card-decoration decoration-two"></div>
+        <div class="card-shine"></div>
+
+        <div class="card-top">
+          <div class="db-logo">DB</div>
+
+          <span class="card-tier">
+            {{ getCardLabel(card.card_name) }}
+          </span>
+        </div>
+
+        <div class="chip-row">
+          <div class="card-chip"></div>
+
+          <span class="contactless-symbol">)))</span>
+        </div>
+
+        <div class="card-number">
+          •••• &nbsp; •••• &nbsp; ••••
+          &nbsp; {{ getCardNumber(card.card_name) }}
+        </div>
+
+        <div class="card-bottom">
+          <div>
+            <span>Cardholder</span>
+            <strong>Amruta</strong>
+          </div>
+
+          <div>
+            <span>Valid Thru</span>
+            <strong>12/30</strong>
+          </div>
+        </div>
+      </div>
+
+      <span
+        class="recommended-pill"
+        *ngIf="
+          card.card_name === advisorResult.best_card?.card_name
+        "
+      >
+        Recommended
+      </span>
+    </article>
+  </section>
+
+  <div class="carousel-indicator">
+    <span
+      *ngFor="let card of advisorResult.all_recommendations"
+      [class.active]="
+        selectedCard?.card_name === card.card_name
+      "
+    ></span>
+  </div>
+
+  <section class="wallet-details" *ngIf="selectedCard">
+    <div class="details-heading">
+      <div>
+        <p>Selected Card</p>
+        <h2>{{ selectedCard.card_name }}</h2>
+      </div>
+
+      <span class="score-pill">
+        {{ selectedCard.score }}
+        <small>score</small>
+      </span>
+    </div>
+
+    <div class="wallet-metrics">
+      <div>
+        <span>Estimated Reward</span>
+        <strong>₹{{ selectedCard.estimated_reward }}</strong>
+      </div>
+
+      <div>
+        <span>Net Value</span>
+        <strong>₹{{ selectedCard.net_value_after_fee }}</strong>
+      </div>
+    </div>
+
+    <div class="benefit-row">
+      <div class="benefit-icon">₹</div>
+      <span>Annual Fee</span>
+      <strong>₹{{ selectedCard.annual_fee }}</strong>
+    </div>
+
+    <div class="benefit-row">
+      <div class="benefit-icon">◎</div>
+      <span>Forex Markup</span>
+      <strong>{{ selectedCard.forex_markup }}%</strong>
+    </div>
+
+    <div class="benefit-row">
+      <div class="benefit-icon">✓</div>
+      <span>Lounge Access</span>
+      <strong>
+        {{ selectedCard.lounge_access ? 'Available' : 'Not Available' }}
+      </strong>
+    </div>
+
+    <div class="benefit-row">
+      <div class="benefit-icon">◉</div>
+      <span>Best For</span>
+      <strong class="benefit-description">
+        {{ selectedCard.best_for }}
+      </strong>
+    </div>
+
+    <div class="benefit-row">
+      <div class="benefit-icon">◆</div>
+      <span>Reward Type</span>
+      <strong>{{ selectedCard.reward_type }}</strong>
+    </div>
+
+    <div class="benefit-row">
+      <div class="benefit-icon">▥</div>
+      <span>Confidence</span>
+      <strong>{{ selectedCard.confidence }}%</strong>
+    </div>
+
+    <a class="details-button" routerLink="/advisor">
+      View AI recommendation
+      <span>→</span>
+    </a>
+  </section>
+</ng-container>

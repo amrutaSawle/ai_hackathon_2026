@@ -1,0 +1,123 @@
+<section class="welcome-section">
+  <p>Good evening</p>
+  <h1>Welcome back, Amruta 👋</h1>
+  <span>Your personalized financial overview</span>
+</section>
+
+<div class="loading-card" *ngIf="loading">
+  Loading your financial summary...
+</div>
+
+<ng-container *ngIf="advisorResult?.best_card as bestCard">
+  <section class="balance-card">
+    <div class="balance-header">
+      <span>Monthly Spending</span>
+
+      <span class="material-icons">visibility</span>
+    </div>
+
+    <strong>
+      ₹{{ advisorResult.spend_summary.total_spend }}
+    </strong>
+
+    <small>
+      Highest category:
+      {{ advisorResult.spend_summary.top_category }}
+    </small>
+  </section>
+
+  <section class="quick-actions">
+    <a routerLink="/transactions">
+      <span class="quick-icon add-icon">
+        <span class="material-icons">add</span>
+      </span>
+
+      <small>Add Spend</small>
+    </a>
+
+    <a routerLink="/advisor">
+      <span class="quick-icon ai-icon">
+        <span class="material-icons">psychology</span>
+      </span>
+
+      <small>Ask Advisor</small>
+    </a>
+
+    <a routerLink="/wallet">
+      <span class="quick-icon card-icon">
+        <span class="material-icons">credit_card</span>
+      </span>
+
+      <small>My Cards</small>
+    </a>
+
+    <a routerLink="/chat">
+      <span class="quick-icon chat-icon">
+        <span class="material-icons">chat</span>
+      </span>
+
+      <small>AI Chat</small>
+    </a>
+  </section>
+
+  <section class="home-panel recommendation-preview">
+    <div class="panel-title">
+      <div>
+        <span>AI Recommendation</span>
+        <h2>Best card for you</h2>
+      </div>
+
+      <a routerLink="/advisor">View details</a>
+    </div>
+
+    <div class="recommended-card-row">
+      <div class="small-card-visual">
+        <span class="card-logo">DB</span>
+        <strong>TRAVEL</strong>
+        <small>•••• 4587</small>
+      </div>
+
+      <div class="recommendation-copy">
+        <h3>{{ bestCard.card_name }}</h3>
+
+        <p>
+          {{ advisorResult.explanation }}
+        </p>
+
+        <div class="recommendation-score">
+          <span>AI match</span>
+          <strong>{{ bestCard.confidence }}%</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-panel">
+    <div class="panel-title">
+      <div>
+        <span>Spending</span>
+        <h2>Top categories</h2>
+      </div>
+
+      <a routerLink="/spending">See all</a>
+    </div>
+
+    <div
+      class="category-row"
+      *ngFor="
+        let item of advisorResult.spend_summary.category_totals | keyvalue
+      "
+    >
+      <div class="category-icon">
+        <span class="material-icons">payments</span>
+      </div>
+
+      <div class="category-copy">
+        <strong>{{ item.key }}</strong>
+        <span>Current analysis period</span>
+      </div>
+
+      <b>₹{{ item.value }}</b>
+    </div>
+  </section>
+</ng-container>

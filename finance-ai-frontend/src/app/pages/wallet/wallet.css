@@ -1,0 +1,480 @@
+:host {
+  display: block;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.wallet-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 4px 14px;
+}
+
+.wallet-header p,
+.wallet-header h1,
+.wallet-header span {
+  margin: 0;
+}
+
+.wallet-header p {
+  color: #667085;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+.wallet-header h1 {
+  margin: 4px 0 5px;
+  color: #172033;
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.wallet-header span {
+  color: #98a2b3;
+  font-size: 11px;
+}
+
+.add-card-button {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 14px;
+  color: white;
+  background: linear-gradient(135deg, #376cea, #1748c9);
+  box-shadow: 0 9px 20px rgba(23, 72, 201, 0.24);
+  cursor: pointer;
+}
+
+.add-card-button span {
+  color: white;
+  font-size: 22px;
+}
+
+.status-card {
+  padding: 18px;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.08);
+}
+
+.error-card {
+  color: #b42318;
+  background: #fef3f2;
+}
+
+.wallet-carousel {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 12px;
+  margin: 0 -14px;
+  padding: 6px 14px 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.wallet-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.wallet-card-item {
+  position: relative;
+  width: 70%;
+  min-width: 70%;
+  flex: 0 0 70%;
+  padding: 5px;
+  border: 2px solid transparent;
+  border-radius: 22px;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.wallet-card-item.active-wallet-card {
+  border-color: #376cea;
+}
+
+.bank-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.62;
+  overflow: hidden;
+  padding: 14px;
+  border-radius: 18px;
+  color: white;
+  isolation: isolate;
+  box-shadow:
+    0 18px 34px rgba(16, 24, 40, 0.23),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.theme-travel {
+  background:
+    radial-gradient(
+      circle at 82% 18%,
+      rgba(91, 150, 255, 0.85),
+      transparent 26%
+    ),
+    linear-gradient(135deg, #081d42, #1748c9 56%, #5184ff);
+}
+
+.theme-platinum {
+  background:
+    radial-gradient(
+      circle at 76% 18%,
+      rgba(255, 255, 255, 0.23),
+      transparent 28%
+    ),
+    linear-gradient(135deg, #1c222b, #596372 52%, #141922);
+}
+
+.theme-cashback {
+  background:
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(46, 221, 172, 0.56),
+      transparent 28%
+    ),
+    linear-gradient(135deg, #063840, #087f73 54%, #18b991);
+}
+
+.theme-default {
+  background: linear-gradient(135deg, #10213f, #265dbe);
+}
+
+.card-decoration {
+  position: absolute;
+  z-index: -1;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+}
+
+.decoration-one {
+  width: 130px;
+  height: 130px;
+  right: -55px;
+  bottom: -70px;
+}
+
+.decoration-two {
+  width: 80px;
+  height: 80px;
+  top: -38px;
+  left: -34px;
+}
+
+.card-shine {
+  position: absolute;
+  top: -120%;
+  left: -45%;
+  width: 70px;
+  height: 330px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.14),
+    transparent
+  );
+  transform: rotate(24deg);
+  animation: cardShine 5.5s ease-in-out infinite;
+}
+
+@keyframes cardShine {
+  0% {
+    left: -45%;
+  }
+
+  55%,
+  100% {
+    left: 140%;
+  }
+}
+
+.card-top,
+.chip-row,
+.card-bottom {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.db-logo {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.11);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.card-tier {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1.4px;
+}
+
+.chip-row {
+  margin-top: 17px;
+}
+
+.card-chip {
+  width: 36px;
+  height: 27px;
+  border-radius: 6px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 47%,
+      rgba(78, 57, 12, 0.3) 48% 52%,
+      transparent 53%
+    ),
+    linear-gradient(
+      0deg,
+      transparent 47%,
+      rgba(78, 57, 12, 0.3) 48% 52%,
+      transparent 53%
+    ),
+    linear-gradient(135deg, #ffe89b, #c6912b);
+}
+
+.contactless-symbol {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -3px;
+  transform: rotate(90deg);
+}
+
+.card-number {
+  position: relative;
+  z-index: 2;
+  margin-top: 15px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.7px;
+  white-space: nowrap;
+}
+
+.card-bottom {
+  margin-top: 14px;
+}
+
+.card-bottom span,
+.card-bottom strong {
+  display: block;
+}
+
+.card-bottom span {
+  margin-bottom: 2px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.card-bottom strong {
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
+.recommended-pill {
+  position: absolute;
+  top: -2px;
+  right: 10px;
+  z-index: 5;
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: white;
+  background: #1748c9;
+  box-shadow: 0 7px 15px rgba(23, 72, 201, 0.24);
+  font-size: 6px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.carousel-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin: 0 0 10px;
+}
+
+.carousel-indicator span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #d0d5dd;
+}
+
+.carousel-indicator span.active {
+  width: 18px;
+  border-radius: 999px;
+  background: #1748c9;
+}
+
+.wallet-details {
+  padding: 15px;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.08);
+}
+
+.details-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.details-heading p,
+.details-heading h2 {
+  margin: 0;
+}
+
+.details-heading p {
+  color: #667085;
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.details-heading h2 {
+  margin-top: 4px;
+  color: #172033;
+  font-size: 15px;
+}
+
+.score-pill {
+  display: grid;
+  place-items: center;
+  min-width: 47px;
+  padding: 6px 8px;
+  border-radius: 13px;
+  color: #1748c9;
+  background: #eef4ff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.score-pill small {
+  display: block;
+  font-size: 7px;
+}
+
+.wallet-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.wallet-metrics > div {
+  padding: 10px;
+  border-radius: 13px;
+  background: #f5f8ff;
+}
+
+.wallet-metrics span,
+.wallet-metrics strong {
+  display: block;
+}
+
+.wallet-metrics span {
+  margin-bottom: 4px;
+  color: #667085;
+  font-size: 8px;
+}
+
+.wallet-metrics strong {
+  color: #1748c9;
+  font-size: 14px;
+}
+
+.benefit-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.benefit-row:last-of-type {
+  border-bottom: 0;
+}
+
+.benefit-icon {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  color: #1748c9;
+  background: #eef4ff;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.benefit-row span,
+.benefit-row strong {
+  font-size: 9px;
+}
+
+.benefit-row span {
+  color: #667085;
+}
+
+.benefit-row strong {
+  color: #172033;
+  text-align: right;
+}
+
+.benefit-description {
+  max-width: 170px;
+  line-height: 1.35;
+}
+
+.details-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  color: white;
+  background: linear-gradient(135deg, #376cea, #1748c9);
+  text-decoration: none;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+@media (min-width: 768px) {
+  .wallet-card-item {
+    width: 31%;
+    min-width: 31%;
+    flex-basis: 31%;
+  }
+
+  .wallet-carousel {
+    overflow-x: auto;
+  }
+}
