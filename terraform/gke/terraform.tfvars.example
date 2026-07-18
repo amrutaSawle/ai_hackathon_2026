@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars and set your Google Cloud project ID.
+project_id = "your-gcp-project-id"
+
+# This zonal, one-node configuration is intended only for low-cost testing.
+region            = "us-central1"
+zone              = "us-central1-a"
+cluster_name      = "finance-ai-test"
+node_machine_type = "e2-small"
+node_count        = 1

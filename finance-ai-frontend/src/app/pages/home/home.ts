@@ -18,7 +18,7 @@ export class Home implements OnInit {
 
   ngOnInit(): void {
     this.http
-      .get<any>('http://localhost:8000/api/advisor/user/1')
+      .get<any>('/api/advisor/user/1')
       .subscribe({
         next: (response) => {
           this.advisorResult = response;

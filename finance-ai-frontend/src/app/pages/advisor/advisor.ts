@@ -24,7 +24,7 @@ export class Advisor implements OnInit,OnDestroy {
         startWith(0),
         switchMap(() =>
           this.http.get<any>(
-            'http://localhost:8000/api/advisor/user/1'
+            '/api/advisor/user/1'
           )
         )
       )
