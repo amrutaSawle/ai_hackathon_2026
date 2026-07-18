@@ -1,0 +1,84 @@
+name: Deploy Finance AI to GKE
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Immutable image tag to build and deploy"
+        required: true
+        default: "${{ github.sha }}"
+      public_service:
+        description: "Expose the frontend through a Google LoadBalancer"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: finance-ai-gke-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: gke
+    env:
+      PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      REGION: ${{ vars.GCP_REGION }}
+      ZONE: ${{ vars.GCP_ZONE }}
+      CLUSTER_NAME: ${{ vars.GKE_CLUSTER_NAME }}
+      ARTIFACT_REPOSITORY: ${{ vars.ARTIFACT_REPOSITORY }}
+      TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+      IMAGE_TAG: ${{ inputs.image_tag }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      APP_SECRET_KEY: ${{ secrets.APP_SECRET_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      FRONTEND_SERVICE_TYPE: ${{ inputs.public_service && 'LoadBalancer' || 'ClusterIP' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOYER_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Provision cluster and image repository
+        run: |
+          terraform -chdir=terraform/gke init \
+            -backend-config="bucket=${TF_STATE_BUCKET}" \
+            -backend-config="prefix=finance-ai/gke"
+          terraform -chdir=terraform/gke apply -auto-approve \
+            -var="project_id=${PROJECT_ID}" \
+            -var="region=${REGION}" \
+            -var="zone=${ZONE}" \
+            -var="cluster_name=${CLUSTER_NAME}" \
+            -var="artifact_registry_repository=${ARTIFACT_REPOSITORY}"
+      - name: Build and publish images
+        run: |
+          export REGISTRY="${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}"
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+          docker build -t "${REGISTRY}/finance-ai-backend:${IMAGE_TAG}" finance-ai-backend
+          docker build -t "${REGISTRY}/finance-ai-frontend:${IMAGE_TAG}" finance-ai-frontend
+          docker push "${REGISTRY}/finance-ai-backend:${IMAGE_TAG}"
+          docker push "${REGISTRY}/finance-ai-frontend:${IMAGE_TAG}"
+      - name: Deploy Helm release
+        run: |
+          gcloud container clusters get-credentials "$CLUSTER_NAME" --zone="$ZONE" --project="$PROJECT_ID"
+          values_file="$(mktemp)"
+          trap 'rm -f "$values_file"' EXIT
+          cat >"$values_file" <<EOF
+          backend:
+            image: { repository: ${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/finance-ai-backend, tag: "${IMAGE_TAG}" }
+            replicaCount: 1
+          frontend:
+            image: { repository: ${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/finance-ai-frontend, tag: "${IMAGE_TAG}" }
+            replicaCount: 1
+            service: { type: ${FRONTEND_SERVICE_TYPE} }
+          database: { storage: 2Gi, password: "${DATABASE_PASSWORD}" }
+          secrets: { secretKey: "${APP_SECRET_KEY}", openaiApiKey: "${OPENAI_API_KEY}", openaiModel: "gpt-4.1-mini" }
+          ingress: { enabled: false }
+          EOF
+          helm upgrade --install finance-ai helm/finance-ai --namespace finance-ai --create-namespace --values="$values_file" --wait --timeout=10m
