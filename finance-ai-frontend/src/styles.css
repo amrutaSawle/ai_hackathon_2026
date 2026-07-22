@@ -30,3 +30,20 @@ textarea {
 * {
   box-sizing: border-box;
 }
+
+.page-content {
+  container-type: inline-size;
+}
+
+@container (max-width: 900px) {
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.main-spend-value,
+.forecast-value,
+.highlight-value {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

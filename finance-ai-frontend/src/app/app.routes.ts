@@ -9,6 +9,9 @@ import { Transactions } from './pages/transactions/transactions';
 import { Rewards } from './pages/rewards/rewards';
 import { Chat } from './pages/chat/chat';
 import { Profile } from './pages/profile/profile';
+import { CopilotComponent } from './pages/copilot/copilot';
+import { AiInsightsComponent } from './pages/ai-insights/ai-insights';
+import { FinancialDnaComponent } from './pages/financial-dna/financial-dna';
 
 export const routes: Routes = [
   {
@@ -46,12 +49,25 @@ export const routes: Routes = [
   },
   {
     path: 'chat',
-    component: Chat
+    component: CopilotComponent
   },
   {
     path: 'profile',
     component: Profile
   },
+  {
+    path: 'copilot',
+    component: CopilotComponent
+  },
+ {
+    path: 'ai-insights',
+    component: AiInsightsComponent
+  },
+  {
+  path: 'financial-dna',
+  component: FinancialDnaComponent
+},
+
   {
     path: '**',
     redirectTo: 'home'

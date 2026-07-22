@@ -13,6 +13,66 @@ from app.models.financial_event_transaction import (
 )
 from app.models.transaction import Transaction
 from app.services.spend_analyzer import analyze_spending
+from collections import defaultdict
+from datetime import date, datetime
+from typing import Any
+from app.services.ai_intent_service import detect_intent_with_ai
+from app.services.spending_insights import (
+    generate_spending_insights,
+)
+def answer_spending_insights(
+    transactions: list[Transaction],
+) -> dict[str, Any]:
+    insight_result = generate_spending_insights(
+        transactions
+    )
+
+    insights = insight_result["insights"]
+
+    if not insights:
+        return {
+            "answer": (
+                "I could not generate spending insights because "
+                "there is not enough transaction data."
+            ),
+            "data": insight_result,
+            "suggestions": [
+                "Show my spending breakdown",
+                "Show my recent transactions",
+            ],
+            "sources": [],
+        }
+
+    important_insights = [
+        insight
+        for insight in insights
+        if insight["severity"] in {
+            "critical",
+            "warning",
+        }
+    ]
+
+    selected_insights = (
+        important_insights[:3]
+        if important_insights
+        else insights[:3]
+    )
+
+    summary_parts = [
+        insight["description"]
+        for insight in selected_insights
+    ]
+
+    return {
+        "answer": " ".join(summary_parts),
+        "data": insight_result,
+        "suggestions": [
+            "Why did my spending increase?",
+            "Show my monthly spending",
+            "Which card is best for my spending?",
+        ],
+        "sources": [],
+    }
 
 
 def format_currency(amount: float) -> str:
@@ -23,8 +83,8 @@ def normalize_question(question: str) -> str:
     return re.sub(r"\s+", " ", question.lower()).strip()
 
 
-def detect_intent(question: str) -> str:
-    normalized = normalize_question(question)
+def detect_intent_fallback(question: str) -> str:
+    normalized = " ".join(question.lower().strip().split())
 
     if any(
         phrase in normalized
@@ -60,6 +120,34 @@ def detect_intent(question: str) -> str:
         ]
     ):
         return "TOP_CATEGORY"
+    if any(
+    phrase in normalized
+    for phrase in [
+        "show my spending insights",
+        "spending insights",
+        "analyse my spending",
+        "analyze my spending",
+        "what do you notice about my spending",
+        "give me financial insights",
+        "give me spending insights",
+        "how is my spending",
+        "tell me about my spending pattern",
+        "spending pattern",
+    ]
+    ):
+         return "SPENDING_INSIGHTS"
+    if any(
+            phrase in normalized
+            for phrase in [
+                "spending this month",
+                "spent this month",
+                "monthly spending",
+                "month spending",
+                "current month spending",
+                "how much did i spend this month",
+            ]
+        ):
+            return "MONTHLY_SPENDING"
 
     if any(
         phrase in normalized
@@ -71,7 +159,23 @@ def detect_intent(question: str) -> str:
         ]
     ):
         return "TOTAL_SPEND"
-
+    if any(
+    phrase in normalized
+    for phrase in [
+        "show my spending breakdown",
+        "spending breakdown",
+        "spend breakdown",
+        "category breakdown",
+        "show category breakdown",
+        "break down my spending",
+        "show my spending",
+        "where am i spending",
+        "how am i spending",
+        "spending distribution",
+    ]
+     ):
+         return "SPENDING_BREAKDOWN"
+   
     if any(
         phrase in normalized
         for phrase in [
@@ -94,10 +198,325 @@ def detect_intent(question: str) -> str:
         ]
     ):
         return "MEMORY_SEARCH"
+    if any(
+        phrase in normalized
+        for phrase in [
+            "top merchants",
+            "top merchant",
+            "where do i spend the most",
+            "which merchant",
+            "merchant spending",
+            "highest merchant",
+            "most used merchant",
+        ]
+    ):
+        return "TOP_MERCHANTS"
+
+    
+    if any(
+        phrase in normalized
+        for phrase in [
+            "biggest transaction",
+            "largest transaction",
+            "highest transaction",
+            "biggest purchase",
+            "largest purchase",
+            "most expensive transaction",
+        ]
+    ):
+        return "BIGGEST_TRANSACTION"
+
+    if any(
+        phrase in normalized
+        for phrase in [
+            "average transaction",
+            "average spend",
+            "average purchase",
+            "average transaction amount",
+            "what is my average spending",
+        ]
+    ):
+        return "AVERAGE_TRANSACTION"
+
+    if any(
+        phrase in normalized
+        for phrase in [
+            "recent transactions",
+            "latest transactions",
+            "last transactions",
+            "show my transactions",
+            "transaction history",
+            "last 10 transactions",
+        ]
+    ):
+        return "RECENT_TRANSACTIONS"
 
     return "HELP"
 
+def answer_top_merchants(
+    transactions: list[Any],
+    limit: int = 5,
+) -> dict[str, Any]:
+    merchant_totals: dict[str, float] = defaultdict(float)
+    merchant_counts: dict[str, int] = defaultdict(int)
 
+    for transaction in transactions:
+        merchant = (
+            get_transaction_value(transaction, "merchant")
+            or get_transaction_value(transaction, "merchant_name")
+            or "Unknown merchant"
+        )
+
+        merchant = str(merchant).strip() or "Unknown merchant"
+
+        merchant_totals[merchant] += get_transaction_amount(transaction)
+        merchant_counts[merchant] += 1
+
+    merchants = [
+        {
+            "merchant": merchant,
+            "amount": round(amount, 2),
+            "transaction_count": merchant_counts[merchant],
+        }
+        for merchant, amount in merchant_totals.items()
+    ]
+
+    merchants.sort(
+        key=lambda item: item["amount"],
+        reverse=True,
+    )
+
+    top_merchants = merchants[:limit]
+
+    if not top_merchants:
+        return {
+            "answer": "I could not find any merchant spending.",
+            "data": {
+                "merchants": [],
+                "merchant_breakdown": [],
+            },
+            "suggestions": [
+                "Show my spending breakdown",
+                "What is my top category?",
+            ],
+            "sources": [],
+        }
+
+    top = top_merchants[0]
+
+    return {
+        "answer": (
+            f"Your highest spending merchant is "
+            f"{top['merchant']} with ₹{top['amount']:,.0f} spent."
+        ),
+        "data": {
+            "merchants": top_merchants,
+            "merchant_breakdown": top_merchants,
+            "top_merchant": top["merchant"],
+            "top_merchant_amount": top["amount"],
+        },
+        "suggestions": [
+            "Show my recent transactions",
+            "What is my biggest transaction?",
+            "Show my spending breakdown",
+        ],
+        "sources": [],
+    }
+def answer_monthly_spending(
+    transactions: list[Any],
+) -> dict[str, Any]:
+    today = date.today()
+
+    monthly_transactions = [
+        transaction
+        for transaction in transactions
+        if (
+            (transaction_date := get_transaction_date(transaction))
+            and transaction_date.year == today.year
+            and transaction_date.month == today.month
+        )
+    ]
+
+    total = sum(
+        get_transaction_amount(transaction)
+        for transaction in monthly_transactions
+    )
+
+    category_totals: dict[str, float] = defaultdict(float)
+
+    for transaction in monthly_transactions:
+        category = (
+            get_transaction_value(transaction, "category")
+            or get_transaction_value(transaction, "category_name")
+            or "Other"
+        )
+
+        category_totals[str(category)] += get_transaction_amount(transaction)
+
+    categories = [
+        {
+            "category": category,
+            "amount": round(amount, 2),
+            "percentage": round(
+                amount / total * 100,
+                2,
+            ) if total else 0,
+        }
+        for category, amount in category_totals.items()
+    ]
+
+    categories.sort(
+        key=lambda item: item["amount"],
+        reverse=True,
+    )
+
+    month_name = today.strftime("%B %Y")
+
+    return {
+        "answer": (
+            f"You spent ₹{total:,.0f} in {month_name} "
+            f"across {len(monthly_transactions)} transactions."
+        ),
+        "data": {
+            "period": month_name,
+            "total_spend": round(total, 2),
+            "transaction_count": len(monthly_transactions),
+            "top_category": (
+                categories[0]["category"]
+                if categories
+                else "No spending"
+            ),
+            "categories": categories,
+            "category_totals": {
+                item["category"]: item["amount"]
+                for item in categories
+            },
+        },
+        "suggestions": [
+            "What is my top category?",
+            "Show my spending breakdown",
+            "Show my top merchants",
+        ],
+        "sources": [],
+    }
+def answer_biggest_transaction(
+    transactions: list[Any],
+) -> dict[str, Any]:
+    if not transactions:
+        return {
+            "answer": "I could not find any transactions.",
+            "data": {},
+            "suggestions": [
+                "Show my spending breakdown",
+            ],
+            "sources": [],
+        }
+
+    transaction = max(
+        transactions,
+        key=get_transaction_amount,
+    )
+
+    transaction_data = serialize_transaction(transaction)
+
+    return {
+        "answer": (
+            f"Your biggest transaction was "
+            f"₹{transaction_data['amount']:,.0f} at "
+            f"{transaction_data['merchant']}."
+        ),
+        "data": {
+            "transaction": transaction_data,
+            **transaction_data,
+        },
+        "suggestions": [
+            "Show my recent transactions",
+            "What is my average transaction?",
+            "Show my top merchants",
+        ],
+        "sources": [],
+    }
+def answer_average_transaction(
+    transactions: list[Any],
+) -> dict[str, Any]:
+    amounts = [
+        get_transaction_amount(transaction)
+        for transaction in transactions
+    ]
+
+    amounts = [
+        amount
+        for amount in amounts
+        if amount > 0
+    ]
+
+    total = sum(amounts)
+    transaction_count = len(amounts)
+    average = (
+        total / transaction_count
+        if transaction_count
+        else 0
+    )
+
+    return {
+        "answer": (
+            f"Your average transaction amount is "
+            f"₹{average:,.0f}, based on "
+            f"{transaction_count} transactions."
+        ),
+        "data": {
+            "average_transaction": round(average, 2),
+            "total_spend": round(total, 2),
+            "transaction_count": transaction_count,
+        },
+        "suggestions": [
+            "What is my biggest transaction?",
+            "Show my recent transactions",
+            "Show my spending breakdown",
+        ],
+        "sources": [],
+    }
+def answer_recent_transactions(
+    transactions: list[Any],
+    limit: int = 10,
+) -> dict[str, Any]:
+    sorted_transactions = sorted(
+        transactions,
+        key=lambda transaction: (
+            get_transaction_date(transaction) or date.min,
+            get_transaction_value(transaction, "id", 0) or 0,
+        ),
+        reverse=True,
+    )
+
+    recent = [
+        serialize_transaction(transaction)
+        for transaction in sorted_transactions[:limit]
+    ]
+
+    total = sum(
+        transaction["amount"]
+        for transaction in recent
+    )
+
+    return {
+        "answer": (
+            f"Here are your latest {len(recent)} transactions."
+            if recent
+            else "I could not find any recent transactions."
+        ),
+        "data": {
+            "transactions": recent,
+            "transaction_count": len(recent),
+            "total_amount": round(total, 2),
+        },
+        "suggestions": [
+            "What is my biggest transaction?",
+            "Show my top merchants",
+            "How much did I spend this month?",
+        ],
+        "sources": [],
+    }
 def get_transactions(
     db: Session,
     user_id: int,
@@ -264,7 +683,79 @@ def search_memory_location(
 
     return matches
 
+def get_transaction_value(
+    transaction: Any,
+    field: str,
+    default: Any = None,
+) -> Any:
+    if isinstance(transaction, dict):
+        return transaction.get(field, default)
 
+    return getattr(transaction, field, default)
+
+
+def get_transaction_amount(transaction: Any) -> float:
+    value = get_transaction_value(transaction, "amount", 0)
+
+    try:
+        return float(value or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def get_transaction_date(transaction: Any) -> date | None:
+    value = (
+        get_transaction_value(transaction, "transaction_date")
+        or get_transaction_value(transaction, "date")
+        or get_transaction_value(transaction, "created_at")
+    )
+
+    if value is None:
+        return None
+
+    if isinstance(value, datetime):
+        return value.date()
+
+    if isinstance(value, date):
+        return value
+
+    if isinstance(value, str):
+        try:
+            return datetime.fromisoformat(
+                value.replace("Z", "+00:00")
+            ).date()
+        except ValueError:
+            return None
+
+    return None
+
+
+def serialize_transaction(transaction: Any) -> dict[str, Any]:
+    transaction_date = get_transaction_date(transaction)
+
+    return {
+        "id": get_transaction_value(transaction, "id"),
+        "merchant": (
+            get_transaction_value(transaction, "merchant")
+            or get_transaction_value(transaction, "merchant_name")
+            or "Unknown merchant"
+        ),
+        "category": (
+            get_transaction_value(transaction, "category")
+            or get_transaction_value(transaction, "category_name")
+            or "Other"
+        ),
+        "amount": round(get_transaction_amount(transaction), 2),
+        "transaction_date": (
+            transaction_date.isoformat()
+            if transaction_date
+            else None
+        ),
+        "description": (
+            get_transaction_value(transaction, "description")
+            or get_transaction_value(transaction, "notes")
+        ),
+    }
 def answer_total_spend(
     transactions: list[Transaction],
 ) -> dict[str, Any]:
@@ -325,11 +816,13 @@ def answer_top_category(
 def answer_category_spend(
     question: str,
     transactions: list[Transaction],
+    category=None,
 ) -> dict[str, Any]:
-    category = find_category_in_question(
-        question=question,
-        transactions=transactions,
-    )
+    if category is None:
+        category = find_category_in_question(
+            question=question,
+            transactions=transactions,
+        )
 
     if not category:
         return {
@@ -398,7 +891,48 @@ def answer_category_spend(
         ],
     }
 
+def answer_spending_breakdown(
+    transactions: list[Transaction],
+) -> dict[str, Any]:
 
+    summary = analyze_spending(transactions)
+
+    total = float(summary["total_spend"])
+
+    categories = []
+
+    for category, amount in summary["category_totals"].items():
+        amount = float(amount)
+
+        percentage = (
+            amount / total * 100
+            if total
+            else 0
+        )
+
+        categories.append(
+            {
+                "category": category,
+                "amount": round(amount, 2),
+                "percentage": round(
+                    percentage,
+                    2,
+                ),
+            }
+        )
+
+    categories.sort(
+        key=lambda x: x["amount"],
+        reverse=True,
+    )
+
+    return {
+        "answer": "Here is your spending breakdown.",
+        "data": {
+            "categories": categories,
+        },
+        "sources": [],
+    }
 def answer_list_memories(
     memories: list[FinancialEvent],
 ) -> dict[str, Any]:
@@ -570,61 +1104,217 @@ def answer_help() -> dict[str, Any]:
         "data": {},
         "sources": [],
     }
+def get_suggestions_for_intent(intent: str) -> list[str]:
+    suggestion_map = {
+        "TOTAL_SPEND": [
+            "Show my spending breakdown",
+            "What is my top spending category?",
+            "Show my top merchants",
+        ],
+        "TOP_CATEGORY": [
+            "Show my spending breakdown",
+            "How much did I spend this month?",
+            "Which card is best for my spending?",
+        ],
+        "SPENDING_INSIGHTS": [
+        "Why did my spending increase?",
+        "Show my monthly spending",
+        "Which card is best for my spending?",
+        ],
+        "CATEGORY_SPEND": [
+            "Show my top merchants",
+            "What is my biggest transaction?",
+            "Show my recent transactions",
+        ],
+        "SPENDING_BREAKDOWN": [
+            "What is my top spending category?",
+            "Show my top merchants",
+            "How much did I spend this month?",
+        ],
+        "TOP_MERCHANTS": [
+            "Show my recent transactions",
+            "What is my biggest transaction?",
+            "Show my spending breakdown",
+        ],
+        "MONTHLY_SPENDING": [
+            "What is my top spending category?",
+            "Show my top merchants",
+            "What is my average transaction amount?",
+        ],
+        "BIGGEST_TRANSACTION": [
+            "Show my recent transactions",
+            "What is my average transaction amount?",
+            "Show my top merchants",
+        ],
+        "AVERAGE_TRANSACTION": [
+            "What is my biggest transaction?",
+            "Show my recent transactions",
+            "Show my spending breakdown",
+        ],
+        "RECENT_TRANSACTIONS": [
+            "What is my biggest transaction?",
+            "Show my top merchants",
+            "How much did I spend this month?",
+        ],
+        "LIST_MEMORIES": [
+            "How much did I spend on my trips?",
+            "Show my recent financial memories",
+            "Which trip cost me the most?",
+        ],
+        "MEMORY_SEARCH": [
+            "Show all my trips",
+            "Show my spending breakdown",
+            "Which card is best for travel?",
+        ],
+        "CARD_RECOMMENDATION": [
+            "Why is this card recommended?",
+            "Show my spending breakdown",
+            "What is my top spending category?",
+        ],
+        "HELP": [
+            "How much did I spend?",
+            "Show my spending breakdown",
+            "Show my top merchants",
+            "Show my spending insights"
+        ],
+    }
 
-
+    return suggestion_map.get(
+        intent,
+        [
+            "Show my spending breakdown",
+            "Show my top merchants",
+            "Show my recent transactions",
+        ],
+    )
 def ask_finance_copilot(
     db: Session,
     user_id: int,
     message: str,
 ) -> dict[str, Any]:
+
     question = message.strip()
-    intent = detect_intent(question)
 
-    transactions = get_transactions(db, user_id)
-    memories = get_memories(db, user_id)
+    # Default values
+    category = None
+    generated_by = "finance_copilot"
 
+    # ----------------------------
+    # Detect intent using AI
+    # ----------------------------
+    try:
+        ai_result = detect_intent_with_ai(question)
+
+        intent = ai_result["intent"]
+        category = ai_result.get("category")
+
+        generated_by = "openai"
+
+    except Exception as ex:
+        print(f"AI Intent Detection Failed: {ex}")
+
+        # Fallback to existing keyword-based intent detection
+        intent = detect_intent_fallback(question)
+
+        generated_by = "fallback"
+
+    # ----------------------------
+    # Load data
+    # ----------------------------
+    transactions = get_transactions(
+        db=db,
+        user_id=user_id,
+    )
+
+    memories = get_memories(
+        db=db,
+        user_id=user_id,
+    )
+
+    # ----------------------------
+    # Execute intent
+    # ----------------------------
     if intent == "TOTAL_SPEND":
+
         result = answer_total_spend(transactions)
 
+    elif intent == "SPENDING_INSIGHTS":
+
+        result = answer_spending_insights(
+            transactions
+        )
+
     elif intent == "TOP_CATEGORY":
+
         result = answer_top_category(transactions)
 
     elif intent == "CATEGORY_SPEND":
+
         result = answer_category_spend(
             question=question,
             transactions=transactions,
+            category=category,
         )
 
+    elif intent == "SPENDING_BREAKDOWN":
+
+        result = answer_spending_breakdown(transactions)
+
+    elif intent == "TOP_MERCHANTS":
+
+        result = answer_top_merchants(transactions)
+
+    elif intent == "MONTHLY_SPENDING":
+
+        result = answer_monthly_spending(transactions)
+
+    elif intent == "BIGGEST_TRANSACTION":
+
+        result = answer_biggest_transaction(transactions)
+
+    elif intent == "AVERAGE_TRANSACTION":
+
+        result = answer_average_transaction(transactions)
+
+    elif intent == "RECENT_TRANSACTIONS":
+
+        result = answer_recent_transactions(transactions)
+
     elif intent == "LIST_MEMORIES":
+
         result = answer_list_memories(memories)
 
     elif intent == "MEMORY_SEARCH":
+
         result = answer_memory_search(
             question=question,
             memories=memories,
         )
 
     elif intent == "CARD_RECOMMENDATION":
+
         result = answer_card_recommendation(
             db=db,
             user_id=user_id,
         )
 
     else:
+
         result = answer_help()
 
+    # ----------------------------
+    # Response
+    # ----------------------------
     return {
         "user_id": user_id,
         "question": question,
         "intent": intent,
         "answer": result["answer"],
         "data": result.get("data", {}),
-        "suggestions": [
-            "How much did I spend on hotels?",
-            "What is my top spending category?",
-            "Show my trips",
-            "How much have I spent in total?",
-        ],
+        "suggestions": (
+            result.get("suggestions")
+            or get_suggestions_for_intent(intent)
+        ),
         "sources": result.get("sources", []),
-        "generated_by": "FINANCE_COPILOT_RULES_V1",
+        "generated_by": generated_by,
     }

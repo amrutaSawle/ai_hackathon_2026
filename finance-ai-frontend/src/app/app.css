@@ -193,3 +193,14 @@
     border-radius: 0 0 30px 30px;
   }
 }
+/* .ai-insights-layout {
+  width: 100%;
+  max-width: none;
+} */
+/* AI Insights must be allowed to display its scaled desktop canvas */
+.app-content:has(app-ai-insights) {
+  max-width: none;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+}

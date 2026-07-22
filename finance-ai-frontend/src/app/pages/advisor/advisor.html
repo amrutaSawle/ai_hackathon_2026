@@ -1,484 +1,257 @@
-<section class="advisor-hero">
-  <div class="hero-copy">
+<section class="advisor-header">
+  <div>
     <p class="eyebrow">Deutsche Bank AI Advisor</p>
-
-    <h1>Personalized Card Recommendation</h1>
-
-    <p class="hero-description">
-      Based on your actual spending pattern, rewards, benefits and lifestyle
-      profile.
+    <h1>Your best card match, explained clearly</h1>
+    <p class="header-copy">
+      We analyse your spending, rewards and lifestyle preferences to identify
+      the card that gives you the strongest overall value.
     </p>
   </div>
 
-  <div
-    class="hero-result"
-    *ngIf="advisorResult?.best_card as bestCard"
-  >
-    <span>Recommended Card</span>
-    <strong>{{ bestCard.card_name }}</strong>
-    <small>{{ bestCard.confidence }}% confidence</small>
-  </div>
+  <!-- <div class="updated-badge">
+    <span class="material-icons">auto_awesome</span>
+    <div>
+      <small>Last updated</small>
+      <strong>{{ lastUpdated | date:'shortTime' }}</strong>
+    </div>
+  </div> -->
 </section>
 
 <div class="status-panel" *ngIf="loading">
   <div class="loader"></div>
-  <span>Analyzing your spending pattern...</span>
+  <div>
+    <strong>Analysing your spending</strong>
+    <span>Reviewing categories, rewards and card benefits...</span>
+  </div>
 </div>
 
 <div class="status-panel error-panel" *ngIf="errorMessage">
-  {{ errorMessage }}
+  <span class="material-icons">error_outline</span>
+  <div>
+    <strong>Recommendation unavailable</strong>
+    <span>{{ errorMessage }}</span>
+  </div>
 </div>
 
-<div
-  class="status-panel error-panel"
-  *ngIf="
-    !loading &&
-    !errorMessage &&
-    advisorResult &&
-    !advisorResult.best_card
-  "
->
-  No card recommendation is currently available.
-</div>
+<ng-container *ngIf="advisorResult?.best_card as bestCard">
+ <section class="recommendation-hero">
+  <div class="recommendation-intro">
+    <div class="recommendation-label">
+      <span class="material-icons">workspace_premium</span>
+      Recommended for you
+    </div>
 
-<div
-  class="advisor-grid"
-  *ngIf="advisorResult?.best_card as bestCard"
->
-  <!-- Recommended card -->
-  <section class="glass-card recommended-panel">
-    <div class="recommended-content">
-      <div class="recommended-information">
-        <p class="section-label">Best Deutsche Bank Card</p>
+    <h2>{{ bestCard.card_name }}</h2>
 
-        <h2>{{ bestCard.card_name }}</h2>
+    <p class="recommendation-description">
+      Best suited for your travel lifestyle. Based on your airline,
+      hotel and international spending, this card provides the highest
+      overall reward value.
+    </p>
 
-        <p class="recommendation-text">
-          {{ advisorResult.explanation }}
-        </p>
+    <div class="benefit-chips">
+      <span>
+        <span class="material-icons">flight</span>
+        Travel
+      </span>
 
-        <div class="recommendation-stats">
-          <div class="recommendation-stat">
-            <span>AI Score</span>
-            <strong>{{ bestCard.score }}</strong>
-          </div>
+      <span>
+        <span class="material-icons">airline_seat_recline_extra</span>
+        Lounge
+      </span>
 
-          <div class="recommendation-stat">
-            <span>Confidence</span>
-            <strong>{{ bestCard.confidence }}%</strong>
-          </div>
-        </div>
-      </div>
+      <span>
+        <span class="material-icons">currency_exchange</span>
+        Forex
+      </span>
 
-      <div class="primary-card-wrapper">
-        <div
-          class="bank-card primary-bank-card"
-          [ngClass]="getCardTheme(bestCard.card_name)"
-        >
-          <div class="card-decoration decoration-one"></div>
-          <div class="card-decoration decoration-two"></div>
-          <div class="card-shine"></div>
+      <span>
+        <span class="material-icons">redeem</span>
+        Rewards
+      </span>
+    </div>
+  </div>
 
-          <div class="card-top">
-            <div class="db-logo">
-              <span>DB</span>
-            </div>
+  <div class="recommended-card-area">
+    <div
+      class="bank-card primary-bank-card"
+      [ngClass]="getCardTheme(bestCard.card_name)"
+    >
+      <div class="card-decoration decoration-one"></div>
+      <div class="card-decoration decoration-two"></div>
+      <div class="card-shine"></div>
 
-            <span class="card-tier">
-              {{ getCardLabel(bestCard.card_name) }}
-            </span>
-          </div>
-
-          <div class="chip-row">
-            <div class="card-chip">
-              <span></span>
-            </div>
-
-            <span class="contactless-symbol">)))</span>
-          </div>
-
-          <div class="card-number">
-            •••• &nbsp; •••• &nbsp; •••• &nbsp; 4587
-          </div>
-
-          <div class="card-bottom">
-            <div>
-              <span>Cardholder</span>
-              <strong>Amruta</strong>
-            </div>
-
-            <div>
-              <span>Valid Thru</span>
-              <strong>12/30</strong>
-            </div>
-          </div>
+      <div class="card-top">
+        <div class="db-logo">
+          <span>DB</span>
         </div>
 
-        <span class="best-match-badge">Best Match</span>
+        <span class="card-tier">
+          {{ getCardLabel(bestCard.card_name) }}
+        </span>
+      </div>
+
+      <div class="chip-row">
+        <div class="card-chip">
+          <span></span>
+        </div>
+
+        <span class="material-icons contactless-icon">
+          contactless
+        </span>
+      </div>
+
+      <div class="card-number">
+        •••• &nbsp; •••• &nbsp; •••• &nbsp; 4587
+      </div>
+
+      <div class="card-bottom">
+        <div>
+          <span>Cardholder</span>
+          <strong>Amruta</strong>
+        </div>
+
+        <div>
+          <span>Valid Thru</span>
+          <strong>12/30</strong>
+        </div>
       </div>
     </div>
-  </section>
 
-  <!-- Metrics -->
- <section
-  class="metric-flip-card"
-  [class.flipped]="isMetricRevealed('reward')"
-  (click)="toggleMetric('reward')"
-  tabindex="0"
-  role="button"
-  (keydown.enter)="toggleMetric('reward')"
->
-  <div class="metric-flip-inner">
-    <div class="metric-face metric-front reward-front">
-      <div class="metric-icon reward-icon">
-        <span class="material-icons">redeem</span>
-      </div>
-
-      <span class="metric-title">Potential Reward</span>
-
-      <small>Tap to reveal value</small>
-    </div>
-
-    <div class="metric-face metric-back reward-back">
-      <div class="metric-icon">
-        <span class="material-icons">redeem</span>
-      </div>
-
-      <span>Potential Reward</span>
-
-      <strong>₹{{ bestCard.estimated_reward }}</strong>
-
-      <small>Based on analyzed transactions</small>
+    <div class="floating-match-badge">
+      <strong>{{ bestCard.confidence }}%</strong>
+      <span>AI Match</span>
     </div>
   </div>
-</section>
 
-<section
-  class="metric-flip-card"
-  [class.flipped]="isMetricRevealed('netValue')"
-  (click)="toggleMetric('netValue')"
-  tabindex="0"
-  role="button"
-  (keydown.enter)="toggleMetric('netValue')"
->
-  <div class="metric-flip-inner">
-    <div class="metric-face metric-front net-front">
-      <div class="metric-icon net-icon">
-        <span class="material-icons">account_balance_wallet</span>
-      </div>
+  <div class="hero-actions">
+    <button type="button" class="apply-button">
+      Apply now
+      <span class="material-icons">arrow_forward</span>
+    </button>
 
-      <span class="metric-title">Net Value</span>
-
-      <small>Tap to reveal value</small>
-    </div>
-
-    <div class="metric-face metric-back net-back">
-      <div class="metric-icon">
-        <span class="material-icons">account_balance_wallet</span>
-      </div>
-
-      <span>Net Value</span>
-
-      <strong>₹{{ bestCard.net_value_after_fee }}</strong>
-
-      <small>Reward value after annual fee</small>
-    </div>
-  </div>
-</section>
-
-<section
-  class="metric-flip-card"
-  [class.flipped]="isMetricRevealed('annualFee')"
-  (click)="toggleMetric('annualFee')"
-  tabindex="0"
-  role="button"
-  (keydown.enter)="toggleMetric('annualFee')"
->
-  <div class="metric-flip-inner">
-    <div class="metric-face metric-front fee-front">
-      <div class="metric-icon fee-icon">
-        <span class="material-icons">credit_card</span>
-      </div>
-
-      <span class="metric-title">Annual Fee</span>
-
-      <small>Tap to reveal value</small>
-    </div>
-
-    <div class="metric-face metric-back fee-back">
-      <div class="metric-icon">
-        <span class="material-icons">credit_card</span>
-      </div>
-
-      <span>Annual Fee</span>
-
-      <strong>₹{{ bestCard.annual_fee }}</strong>
-
-      <small>Current annual card charge</small>
-    </div>
-  </div>
-</section>
-
-  <!-- Spending summary -->
-  <section class="glass-card transaction-summary-card">
-  <div class="transaction-header">
-    <div>
-      <p class="section-label">Transaction Analysis</p>
-      <h3>Recent Transactions</h3>
-    </div>
-
-    <button class="view-all-button" type="button">
-      View all
+    <button
+      type="button"
+      class="compare-button"
+      (click)="scrollToComparison()"
+    >
+      Compare cards
     </button>
   </div>
-
-  <div class="transaction-total">
-    <span>Total Spend</span>
-    <strong>₹{{ advisorResult.spend_summary.total_spend }}</strong>
-  </div>
-
-  <div class="transaction-list">
-    <div
-      class="transaction-item"
-      *ngFor="
-        let item of advisorResult.spend_summary.category_totals | keyvalue
-      "
-    >
-      <div
-        class="transaction-icon"
-        [ngClass]="getCategoryTheme(item.key)"
-      >
-        <span class="material-icons">
-          {{ getCategoryIcon(item.key) }}
-        </span>
-      </div>
-
-      <div class="transaction-details">
-        <strong>{{ item.key }}</strong>
-
-        <span>
-          {{ getCategoryDescription(item.key) }}
-        </span>
-      </div>
-
-      <div class="transaction-amount">
-        <strong>₹{{ item.value }}</strong>
-
-        <span class="material-icons">
-          chevron_right
-        </span>
-      </div>
-    </div>
-  </div>
 </section>
 
-  <!-- Persona -->
-  <section class="glass-card detail-card">
-    <div class="panel-heading">
-      <div>
-        <p class="section-label">Behavior Analysis</p>
-        <h3>Customer Persona</h3>
-      </div>
-    </div>
+  <section class="metric-grid">
+    <article class="metric-card reward-metric">
+      <div class="metric-icon"><span class="material-icons">redeem</span></div>
+      <span>Estimated rewards</span>
+      <strong>₹{{ bestCard.estimated_reward | number:'1.0-0' }}</strong>
+      <small>Based on annualised spending</small>
+    </article>
 
-    <div class="persona-list">
-      <span
-        class="persona"
-        *ngFor="let persona of advisorResult.personas"
-      >
-        {{ persona }}
-      </span>
-    </div>
+    <article class="metric-card value-metric">
+      <div class="metric-icon"><span class="material-icons">trending_up</span></div>
+      <span>Net annual value</span>
+      <strong>₹{{ bestCard.net_value_after_fee | number:'1.0-0' }}</strong>
+      <small>Rewards after annual fee</small>
+    </article>
 
-    <p
-      class="empty-message"
-      *ngIf="!advisorResult.personas?.length"
-    >
-      No customer persona has been identified.
-    </p>
+    <article class="metric-card fee-metric">
+      <div class="metric-icon"><span class="material-icons">credit_card</span></div>
+      <span>Annual fee</span>
+      <strong>₹{{ bestCard.annual_fee | number:'1.0-0' }}</strong>
+      <small>Current annual card charge</small>
+    </article>
   </section>
 
-  <!-- Score breakdown -->
-  <section class="glass-card detail-card">
-    <div class="panel-heading">
-      <div>
-        <p class="section-label">AI Evaluation</p>
-        <h3>Score Breakdown</h3>
+  <section class="content-grid">
+    <article class="panel">
+      <div class="panel-heading">
+        <div><p class="section-label">Recommendation logic</p><h3>Why we picked this card</h3></div>
+        <span class="ai-pill"><span class="material-icons">psychology</span>AI explained</span>
       </div>
-    </div>
-
-    <div
-      class="detail-row"
-      *ngFor="let item of bestCard.score_breakdown | keyvalue"
-    >
-      <span>{{ formatLabel(item.key) }}</span>
-      <strong>{{ item.value }}</strong>
-    </div>
-  </section>
-
-  <!-- Benefits -->
-  <section class="glass-card detail-card">
-    <div class="panel-heading">
-      <div>
-        <p class="section-label">Product Details</p>
-        <h3>Card Benefits</h3>
+      <div class="reason-row" *ngFor="let reason of getWhyRecommended()">
+        <span class="material-icons">check_circle</span><p>{{ reason }}</p>
       </div>
-    </div>
+    </article>
 
-    <div class="detail-row">
-      <span>Lounge Access</span>
-      <strong>
-        {{ bestCard.lounge_access ? 'Available' : 'Not Available' }}
-      </strong>
-    </div>
-
-    <div class="detail-row">
-      <span>Forex Markup</span>
-      <strong>{{ bestCard.forex_markup }}%</strong>
-    </div>
-
-    <div class="detail-row">
-      <span>Reward Type</span>
-      <strong>{{ bestCard.reward_type }}</strong>
-    </div>
-
-    <div class="detail-row">
-      <span>Best For</span>
-      <strong class="benefit-description">{{ bestCard.best_for }}</strong>
-    </div>
-  </section>
-
-  <!-- All card recommendations -->
-  <section class="glass-card recommendations-section">
-    <div class="recommendations-heading">
-      <div>
-        <p class="section-label">Card Comparison</p>
-        <h3>All Deutsche Bank Recommendations</h3>
+    <article class="panel">
+      <div class="panel-heading">
+        <div><p class="section-label">Spending profile</p><h3>Your strongest categories</h3></div>
       </div>
-
-      <span class="cards-evaluated">
-        {{ advisorResult.all_recommendations?.length || 0 }}
-        cards evaluated
-      </span>
-    </div>
-
-    <div class="recommendation-scroll">
-      <article
-        class="recommendation-card"
-        *ngFor="let card of advisorResult.all_recommendations"
-        [class.selected-recommendation]="
-          card.card_name === bestCard.card_name
-        "
-      >
-        <div class="mini-card-container">
-          <div
-            class="bank-card mini-bank-card"
-            [ngClass]="getCardTheme(card.card_name)"
-          >
-            <div class="card-decoration decoration-one"></div>
-            <div class="card-decoration decoration-two"></div>
-            <div class="card-shine"></div>
-
-            <div class="card-top">
-              <div class="db-logo mini-logo">
-                <span>DB</span>
-              </div>
-
-              <span class="card-tier mini-tier">
-                {{ getCardLabel(card.card_name) }}
-              </span>
-            </div>
-
-            <div class="chip-row mini-chip-row">
-              <div class="card-chip mini-chip">
-                <span></span>
-              </div>
-
-              <span class="contactless-symbol mini-contactless">
-                )))
-              </span>
-            </div>
-
-            <div class="card-number mini-card-number">
-              •••• 4587
-            </div>
-          </div>
-
-          <span
-            class="recommended-badge"
-            *ngIf="card.card_name === bestCard.card_name"
-          >
-            Recommended
-          </span>
+      <div class="profile-row" *ngFor="let category of getTopCategories()">
+        <div class="profile-icon" [ngClass]="getCategoryTheme(category.key)">
+          <span class="material-icons">{{ getCategoryIcon(category.key) }}</span>
         </div>
+        <div class="profile-content">
+          <div><strong>{{ category.key }}</strong><span>₹{{ category.value | number:'1.0-0' }}</span></div>
+          <div class="progress"><span [style.width.%]="getCategoryPercentage(category.value)"></span></div>
+        </div>
+      </div>
+    </article>
+  </section>
 
+  <section class="panel">
+    <div class="panel-heading">
+      <div><p class="section-label">Card experience</p><h3>Benefits that matter to you</h3></div>
+    </div>
+    <div class="benefit-grid">
+      <div class="benefit-tile"><span class="material-icons">flight_takeoff</span><strong>Best for</strong><small>{{ bestCard.best_for }}</small></div>
+      <div class="benefit-tile"><span class="material-icons">airline_seat_recline_extra</span><strong>Lounge access</strong><small>{{ bestCard.lounge_access ? 'Included' : 'Not included' }}</small></div>
+      <div class="benefit-tile"><span class="material-icons">currency_exchange</span><strong>Forex markup</strong><small>{{ bestCard.forex_markup }}%</small></div>
+      <div class="benefit-tile"><span class="material-icons">stars</span><strong>Reward type</strong><small>{{ bestCard.reward_type }}</small></div>
+    </div>
+  </section>
+
+  <section class="panel" id="card-comparison">
+    <div class="panel-heading">
+      <div><p class="section-label">Card comparison</p><h3>Compare your strongest matches</h3></div>
+      <span class="cards-evaluated">{{ advisorResult.all_recommendations?.length || 0 }} cards evaluated</span>
+    </div>
+
+    <div class="comparison-scroll">
+      <article class="comparison-card" *ngFor="let card of advisorResult.all_recommendations" [class.recommended-comparison]="card.card_name === bestCard.card_name">
+        <span class="recommendation-tag" *ngIf="card.card_name === bestCard.card_name">Best match</span>
+        <div class="mini-card" [ngClass]="getCardTheme(card.card_name)">
+          <div><span>DB</span><small>{{ getCardLabel(card.card_name) }}</small></div>
+          <strong>•••• 4587</strong>
+        </div>
         <h4>{{ card.card_name }}</h4>
-
-        <p class="card-description">
-          {{ card.best_for }}
-        </p>
-
-        <div class="comparison-row">
-          <span>Score</span>
-          <strong>{{ card.score }}</strong>
-        </div>
-
-        <div class="comparison-row">
-          <span>Confidence</span>
-          <strong>{{ card.confidence }}%</strong>
-        </div>
-
-        <div class="comparison-row">
-          <span>Estimated Reward</span>
-          <strong>₹{{ card.estimated_reward }}</strong>
-        </div>
-
-        <div class="comparison-row">
-          <span>Net Value</span>
-          <strong>₹{{ card.net_value_after_fee }}</strong>
-        </div>
+        <p>{{ card.best_for }}</p>
+        <div class="comparison-detail"><span>Match</span><strong>{{ card.confidence }}%</strong></div>
+        <div class="comparison-detail"><span>Reward</span><strong>₹{{ card.estimated_reward | number:'1.0-0' }}</strong></div>
+        <div class="comparison-detail"><span>Net value</span><strong>₹{{ card.net_value_after_fee | number:'1.0-0' }}</strong></div>
+        <button type="button" [class.primary-card-action]="card.card_name === bestCard.card_name">
+          {{ card.card_name === bestCard.card_name ? 'Choose card' : 'View card' }}
+        </button>
       </article>
     </div>
   </section>
-<section
-  class="glass-card ai-insights-card"
-  *ngIf="advisorResult.ai_advice as aiAdvice"
->
-  <div class="panel-heading">
+
+  <section class="panel ai-panel" *ngIf="advisorResult.ai_advice as aiAdvice">
     <div>
-      <p class="section-label">AI Analysis</p>
-      <h3>Personalized Insights</h3>
-    </div>
-
-    <span class="ai-badge">
-      AI Generated
-    </span>
-  </div>
-
-  <p class="ai-summary">
-    {{ aiAdvice.summary }}
-  </p>
-
-  <div class="ai-insight-list">
-    <div
-      class="ai-insight-item"
-      *ngFor="let insight of aiAdvice.insights"
-    >
-      <div class="ai-insight-icon">
-        <span class="material-icons">auto_awesome</span>
+      <div class="panel-heading"><div><p class="section-label">Personalised AI guidance</p><h3>What this means for your finances</h3></div></div>
+      <p class="ai-summary">{{ aiAdvice.summary }}</p>
+      <div class="insight-item" *ngFor="let insight of aiAdvice.insights">
+        <span class="material-icons">auto_awesome</span><p>{{ insight }}</p>
       </div>
-
-      <span>{{ insight }}</span>
+      <small class="disclaimer">{{ aiAdvice.disclaimer }}</small>
     </div>
-  </div>
+    <div class="savings-highlight">
+      <span class="material-icons">savings</span>
+      <small>Potential savings</small>
+      <strong>{{ aiAdvice.potential_savings }}</strong>
+      <p>Based on your current transaction profile.</p>
+    </div>
+  </section>
 
-  <div class="savings-box">
-    <span>Potential Savings</span>
-    <strong>{{ aiAdvice.potential_savings }}</strong>
-  </div>
+  <section class="analysis-strip">
+    <div><span class="material-icons">receipt_long</span><strong>{{ getAnalysisCount() }}</strong><small>categories analysed</small></div>
+    <div><span class="material-icons">credit_score</span><strong>{{ advisorResult.all_recommendations?.length || 0 }}</strong><small>cards compared</small></div>
+    <div><span class="material-icons">verified</span><strong>{{ bestCard.confidence }}%</strong><small>confidence</small></div>
+  </section>
 
-  <p class="ai-disclaimer">
-    {{ aiAdvice.disclaimer }}
-  </p>
-</section>
-</div>
+  <section class="advisor-cta">
+    <div><p class="section-label">Your next step</p><h3>Ready to get more value from your spending?</h3><p>Apply for the recommended card or ask the AI assistant for more details.</p></div>
+    <div class="hero-actions"><button class="primary-button">Apply now</button><a routerLink="/chat" class="secondary-button">Ask AI</a></div>
+  </section>
+</ng-container>
