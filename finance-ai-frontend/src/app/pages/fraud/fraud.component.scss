@@ -1,0 +1,642 @@
+body{
+
+margin:0;
+
+font-family:Roboto;
+
+}
+
+.page{
+
+background:#EFEAF7;
+
+min-height:100vh;
+
+}
+
+.topHeader{
+
+background:linear-gradient(90deg,#4B1E78,#7C3AED);
+
+padding:25px;
+
+color:white;
+
+text-align:center;
+
+border-radius:0 0 30px 30px;
+
+}
+
+.logo{
+
+font-size:22px;
+
+font-weight:bold;
+
+}
+
+.title{
+
+font-size:28px;
+
+margin-top:15px;
+
+font-weight:bold;
+
+}
+
+.subtitle{
+
+opacity:.8;
+
+margin-top:10px;
+
+}
+
+.amountCard{
+
+background:white;
+
+margin:20px;
+
+padding:20px;
+
+border-radius:20px;
+
+box-shadow:0 4px 12px rgba(0,0,0,.1);
+
+}
+
+.label{
+
+color:gray;
+
+}
+
+.amount{
+
+font-size:35px;
+
+font-weight:bold;
+
+color:#4B1E78;
+
+}
+
+.riskCard{
+
+background:white;
+
+margin:20px;
+
+padding:20px;
+
+text-align:center;
+
+border-radius:20px;
+
+}
+
+.circle{
+
+width:150px;
+
+height:150px;
+
+border-radius:50%;
+
+background:#FFEBEE;
+
+border:10px solid red;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+font-size:35px;
+
+font-weight:bold;
+
+margin:auto;
+
+}
+
+.risk{
+
+font-size:24px;
+
+margin-top:15px;
+
+color:red;
+
+font-weight:bold;
+
+}
+
+.reasonCard,
+.recommendCard,
+.actionCard{
+
+background:white;
+
+margin:20px;
+
+padding:20px;
+
+border-radius:20px;
+
+}
+
+.reason{
+
+padding:12px;
+
+border-bottom:1px solid #eee;
+
+}
+
+button{
+
+width:100%;
+
+padding:15px;
+
+margin-top:15px;
+
+border:none;
+
+border-radius:10px;
+
+font-size:18px;
+
+cursor:pointer;
+
+}
+
+.primary{
+
+background:#5C2D91;
+
+color:white;
+
+}
+
+.danger{
+
+background:#E53935;
+
+color:white;
+
+}
+
+@media(max-width:600px){
+
+.circle{
+
+width:120px;
+
+height:120px;
+
+font-size:28px;
+
+}
+
+.amount{
+
+font-size:28px;
+
+}
+
+}
+.riskCard {
+
+    background: white;
+
+    margin: 20px;
+
+    padding: 25px;
+
+    border-radius: 20px;
+
+    text-align: center;
+
+}
+
+.riskCircle {
+
+    --size: 180px;
+
+    --progress: 0;
+
+    --color: #2E7D32;
+
+    width: var(--size);
+
+    height: var(--size);
+
+    border-radius: 50%;
+
+    margin: auto;
+
+    background:
+        conic-gradient(
+            var(--color) calc(var(--progress) * 1%),
+            #ECECEC 0
+        );
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    transition: 1s;
+}
+
+.innerCircle {
+
+    width: 145px;
+
+    height: 145px;
+
+    background: white;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+}
+
+.innerCircle h1 {
+
+    margin: 0;
+
+    font-size: 42px;
+
+    color: var(--color);
+
+}
+
+.innerCircle span {
+
+    font-size: 15px;
+
+    font-weight: bold;
+
+    color: #666;
+
+}
+.tip{
+    margin-top:15px;
+    padding:15px;
+    background:#FFF8E1;
+    border-left:5px solid orange;
+    border-radius:8px;
+}
+.chartCard {
+
+  background: white;
+
+  margin: 20px;
+
+  padding: 20px;
+
+  border-radius: 20px;
+
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+
+}
+
+.chartCard h2 {
+
+  color: #5C2D91;
+
+  text-align: center;
+
+  margin-bottom: 20px;
+
+}
+
+canvas {
+
+  width: 100% !important;
+
+  max-height: 320px;
+
+}
+
+.factor{
+    margin:20px 0;
+}
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#E0E0E0;
+    border-radius:20px;
+    overflow:hidden;
+    margin-top:6px;
+}
+
+.fill{
+    height:12px;
+    border-radius:20px;
+}
+
+.red{
+    background:#D32F2F;
+}
+
+.orange{
+    background:#FB8C00;
+}
+
+.blue{
+    background:#1976D2;
+}
+
+.purple{
+    background:#7B1FA2;
+}
+
+.timeline{
+
+    display:flex;
+
+    justify-content:space-around;
+
+    align-items:flex-end;
+
+    height:190px;
+
+    margin-top:20px;
+
+}
+
+.bar{
+
+    width:28px;
+
+    background:#005CA9;
+
+    border-radius:8px 8px 0 0;
+
+}
+.dashboard{
+
+display:grid;
+
+grid-template-columns:repeat(4,1fr);
+
+gap:18px;
+
+margin-bottom:25px;
+
+}
+
+.card{
+
+background:white;
+
+padding:20px;
+
+border-radius:18px;
+
+box-shadow:0 8px 20px rgba(0,0,0,.08);
+
+text-align:center;
+
+}
+
+.card h3{
+
+margin:0;
+
+color:#777;
+
+}
+
+.card h1{
+
+margin-top:15px;
+
+color:#005AA9;
+
+font-size:30px;
+
+}
+
+.online{
+
+color:#2E7D32!important;
+
+}
+
+.predictionCard{
+
+margin-top:25px;
+
+padding:25px;
+
+background:white;
+
+border-radius:18px;
+
+box-shadow:0 8px 20px rgba(0,0,0,.08);
+
+}
+
+.predictionResult{
+
+font-size:30px;
+
+font-weight:bold;
+
+margin:20px 0;
+
+}
+
+.probability{
+
+font-size:22px;
+
+margin-bottom:15px;
+
+}
+
+.recommendation{
+
+background:#F4F6FA;
+
+padding:15px;
+
+border-radius:12px;
+
+font-size:18px;
+
+}
+
+.summaryCard{
+
+margin-top:20px;
+
+background:white;
+
+padding:20px;
+
+border-radius:18px;
+
+box-shadow:0 8px 20px rgba(0,0,0,.08);
+
+}
+
+.summaryCard table{
+
+width:100%;
+
+border-collapse:collapse;
+
+}
+
+.summaryCard td{
+
+padding:12px;
+
+border-bottom:1px solid #ECECEC;
+
+}
+
+@media(max-width:900px){
+
+.dashboard{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+}
+
+@media(max-width:600px){
+
+.dashboard{
+
+grid-template-columns:1fr;
+
+}
+
+}
+.transactionForm{
+
+background:white;
+
+padding:25px;
+
+border-radius:20px;
+
+box-shadow:0 8px 20px rgba(0,0,0,.08);
+
+margin-bottom:25px;
+
+}
+
+.formGrid{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:18px;
+
+margin-top:20px;
+
+}
+
+label{
+
+display:block;
+
+font-weight:600;
+
+margin-bottom:8px;
+
+}
+
+input,select,checkbox {
+
+width:100%;
+
+padding:12px;
+
+border-radius:10px;
+
+border:1px solid #DDD;
+
+font-size:15px;
+
+box-sizing:border-box;
+
+}
+
+
+
+.analyzeBtn{
+
+margin-top:25px;
+
+width:100%;
+
+height:50px;
+
+font-size:18px;
+
+background:#005AA9;
+
+color:white;
+
+border:none;
+
+border-radius:12px;
+
+cursor:pointer;
+
+}
+
+.analyzeBtn:hover{
+
+background:#003C78;
+
+}
+
+@media(max-width:900px){
+
+.formGrid{
+
+grid-template-columns:1fr;
+
+}
+
+}
+.loading{
+
+margin:20px 0;
+
+padding:15px;
+
+background:#FFF8E1;
+
+border-radius:10px;
+
+font-weight:bold;
+
+text-align:center;
+
+}

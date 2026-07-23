@@ -1,0 +1,68 @@
+nameOverride: ""
+fullnameOverride: ""
+
+imagePullSecrets: []
+
+backend:
+  image:
+    repository: ghcr.io/replace-me/finance-ai-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 2
+  service:
+    port: 8000
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+  podSecurityContext: { runAsNonRoot: true, runAsUser: 1000, runAsGroup: 1000, fsGroup: 1000 }
+  securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: { drop: ["ALL"] } }
+
+frontend:
+  image:
+    repository: ghcr.io/replace-me/finance-ai-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 2
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits: { cpu: 250m, memory: 128Mi }
+  securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, runAsNonRoot: true, runAsUser: 101, capabilities: { drop: ["ALL"] } }
+
+database:
+  image: postgres:16-alpine
+  storage: 5Gi
+  storageClass: ""
+  name: finance_ai
+  user: finance_ai
+  # Set these using --set-string or a separate values file ignored by Git.
+  password: CHANGE_ME
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+
+secrets:
+  # Required. Generate with: openssl rand -hex 32
+  secretKey: CHANGE_ME
+  openaiApiKey: ""
+  openaiModel: gpt-4.1-mini
+
+config:
+  corsOrigins: "https://finance-ai.example.com"
+
+ingress:
+  enabled: false
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: finance-ai.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

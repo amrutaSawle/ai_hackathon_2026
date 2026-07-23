@@ -46,13 +46,16 @@ def generate_ai_advice(
     all_recommendations: list[dict[str, Any]],
 ) -> dict[str, Any]:
     if not OPENAI_API_KEY:
-        return build_fallback_explanation(
+        result = build_fallback_explanation(
             spend_summary=spend_summary,
             personas=personas,
             best_card=best_card,
         )
-
+        result["generated_by"] = "fallback"
+        return result
     client = OpenAI(api_key=OPENAI_API_KEY)
+    print("OpenAI Enabled:", bool(OPENAI_API_KEY))
+    print("Model:", OPENAI_MODEL)
 
     advisor_data = {
         "spend_summary": spend_summary,
@@ -85,12 +88,13 @@ Return valid JSON with exactly these fields:
 
 Do not describe this as regulated financial advice.
 """
-
+    print("Calling OpenAI...")
     response = client.responses.create(
         model=OPENAI_MODEL,
         instructions=instructions,
         input=json.dumps(advisor_data, default=str),
     )
+    print("OpenAI response received.")
 
     try:
         result = json.loads(response.output_text)
@@ -101,5 +105,6 @@ Do not describe this as regulated financial advice.
             best_card=best_card,
         )
         result["summary"] = response.output_text or result["summary"]
+        result["generated_by"] = "fallback"
 
     return result

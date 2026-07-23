@@ -1,123 +1,292 @@
 <section class="welcome-section">
-  <p>Good evening</p>
-  <h1>Welcome back, Amruta 👋</h1>
-  <span>Your personalized financial overview</span>
+  <div>
+    <p>Good evening</p>
+    <h1>Welcome back, {{ customerName }} 👋</h1>
+    <span>Here is your banking overview</span>
+  </div>
+
+  <button class="notification-button" type="button" aria-label="Notifications">
+    <span class="material-icons">notifications_none</span>
+    <span class="notification-dot"></span>
+  </button>
 </section>
 
-<div class="loading-card" *ngIf="loading">
-  Loading your financial summary...
-</div>
-
-<ng-container *ngIf="advisorResult?.best_card as bestCard">
-  <section class="balance-card">
-    <div class="balance-header">
-      <span>Monthly Spending</span>
-
-      <span class="material-icons">visibility</span>
+<section class="financial-health-card">
+  <div class="financial-health-header">
+    <div>
+      <span class="financial-health-label">AI Financial Overview</span>
+      <h2>Financial Health</h2>
     </div>
 
-    <strong>
-      ₹{{ advisorResult.spend_summary.total_spend }}
-    </strong>
+    <span class="health-status">
+      {{ financialHealth.status }}
+    </span>
+  </div>
 
-    <small>
-      Highest category:
-      {{ advisorResult.spend_summary.top_category }}
-    </small>
-  </section>
-
-  <section class="quick-actions">
-    <a routerLink="/transactions">
-      <span class="quick-icon add-icon">
-        <span class="material-icons">add</span>
-      </span>
-
-      <small>Add Spend</small>
-    </a>
-
-    <a routerLink="/advisor">
-      <span class="quick-icon ai-icon">
-        <span class="material-icons">psychology</span>
-      </span>
-
-      <small>Ask Advisor</small>
-    </a>
-
-    <a routerLink="/wallet">
-      <span class="quick-icon card-icon">
-        <span class="material-icons">credit_card</span>
-      </span>
-
-      <small>My Cards</small>
-    </a>
-
-    <a routerLink="/chat">
-      <span class="quick-icon chat-icon">
-        <span class="material-icons">chat</span>
-      </span>
-
-      <small>AI Chat</small>
-    </a>
-  </section>
-
-  <section class="home-panel recommendation-preview">
-    <div class="panel-title">
-      <div>
-        <span>AI Recommendation</span>
-        <h2>Best card for you</h2>
-      </div>
-
-      <a routerLink="/advisor">View details</a>
-    </div>
-
-    <div class="recommended-card-row">
-      <div class="small-card-visual">
-        <span class="card-logo">DB</span>
-        <strong>TRAVEL</strong>
-        <small>•••• 4587</small>
-      </div>
-
-      <div class="recommendation-copy">
-        <h3>{{ bestCard.card_name }}</h3>
-
-        <p>
-          {{ advisorResult.explanation }}
-        </p>
-
-        <div class="recommendation-score">
-          <span>AI match</span>
-          <strong>{{ bestCard.confidence }}%</strong>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="home-panel">
-    <div class="panel-title">
-      <div>
-        <span>Spending</span>
-        <h2>Top categories</h2>
-      </div>
-
-      <a routerLink="/spending">See all</a>
-    </div>
-
+  <div class="financial-health-content">
     <div
-      class="category-row"
-      *ngFor="
-        let item of advisorResult.spend_summary.category_totals | keyvalue
-      "
+      class="health-ring"
+      [style.background]="getHealthRing()"
     >
-      <div class="category-icon">
-        <span class="material-icons">payments</span>
+      <div class="health-ring-inner">
+        <strong>{{ financialHealth.score }}</strong>
+        <span>/100</span>
       </div>
-
-      <div class="category-copy">
-        <strong>{{ item.key }}</strong>
-        <span>Current analysis period</span>
-      </div>
-
-      <b>₹{{ item.value }}</b>
     </div>
-  </section>
-</ng-container>
+
+    <div class="health-summary">
+      <h3>You are doing well</h3>
+
+      <p>
+        {{ financialHealth.summary }}
+      </p>
+
+      <div class="health-progress">
+        <div
+          class="health-progress-value"
+          [style.width]="getHealthProgress()"
+        ></div>
+      </div>
+
+      <div class="health-progress-labels">
+        <span>Needs attention</span>
+        <span>Excellent</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="health-metrics">
+    <div class="health-metric">
+      <span>Spent this month</span>
+
+      <strong>
+        ₹{{ financialHealth.monthlySpend | number:'1.0-0' }}
+      </strong>
+    </div>
+
+    <div class="health-metric">
+      <span>Predicted spend</span>
+
+      <strong>
+        ₹{{ financialHealth.predictedSpend | number:'1.0-0' }}
+      </strong>
+    </div>
+
+    <div class="health-metric reward-metric">
+      <span>Expected rewards</span>
+
+      <strong>
+        +₹{{ financialHealth.expectedRewards | number:'1.0-0' }}
+      </strong>
+    </div>
+  </div>
+
+  <button
+    type="button"
+    class="health-details-button"
+    routerLink="/chat"
+  >
+    View AI analysis
+
+    <span class="material-icons">
+      arrow_forward
+    </span>
+  </button>
+</section>
+<section class="security-section">
+  <div class="section-heading">
+    <div>
+      <span>AI protection</span>
+      <h2>Scam Shield</h2>
+    </div>
+  </div>
+
+  <div class="security-actions">
+    <a routerLink="/dashboard" class="security-action dashboard-action">
+      <span class="material-icons">shield</span>
+      <strong>Protection dashboard</strong>
+      <small>View fraud alerts and security status</small>
+    </a>
+    <a routerLink="/fraud" class="security-action fraud-action">
+      <span class="material-icons">security</span>
+      <strong>Check a payment</strong>
+      <small>Analyse a transaction before sending it</small>
+    </a>
+  </div>
+</section>
+<section class="insights-section">
+  <div class="section-heading">
+    <div>
+      <span>AI powered</span>
+      <h2>Today’s insights</h2>
+    </div>
+
+    <a routerLink="/chat">View all</a>
+  </div>
+
+  <div class="insight-scroll">
+    <article
+      *ngFor="
+        let insight of financialInsights;
+        trackBy: trackByInsight
+      "
+      class="insight-card"
+      [ngClass]="insight.type + '-insight'"
+    >
+      <div class="insight-card-header">
+        <span class="insight-icon">
+          <span class="material-icons">
+            {{ insight.icon }}
+          </span>
+        </span>
+
+        <span class="insight-type">
+          {{ insight.title }}
+        </span>
+      </div>
+
+      <strong class="insight-value">
+        {{ insight.value }}
+      </strong>
+
+      <p>
+        {{ insight.message }}
+      </p>
+
+      <a
+        class="insight-link"
+        [routerLink]="insight.route"
+      >
+        {{ insight.actionLabel }}
+
+        <span class="material-icons">
+          arrow_forward
+        </span>
+      </a>
+    </article>
+  </div>
+</section>
+<section class="quick-actions-section">
+  <div class="section-heading">
+    <div>
+      <span>Banking</span>
+      <h2>Quick actions</h2>
+    </div>
+  </div>
+
+  <div class="quick-actions">
+    <ng-container *ngFor="let action of quickActions; trackBy: trackByLabel">
+      <a *ngIf="action.route; else actionButton" [routerLink]="action.route" class="quick-action">
+        <span class="quick-icon" [ngClass]="action.className">
+          <span class="material-icons">{{ action.icon }}</span>
+        </span>
+        <small>{{ action.label }}</small>
+      </a>
+
+      <ng-template #actionButton>
+        <button type="button" class="quick-action" (click)="handleQuickAction(action)">
+          <span class="quick-icon" [ngClass]="action.className">
+            <span class="material-icons">{{ action.icon }}</span>
+          </span>
+          <small>{{ action.label }}</small>
+        </button>
+      </ng-template>
+    </ng-container>
+  </div>
+</section>
+
+<section class="home-panel">
+  <div class="section-heading">
+    <div>
+      <span>Accounts</span>
+      <h2>My accounts</h2>
+    </div>
+    <a routerLink="/wallet">View all</a>
+  </div>
+
+  <div class="account-row" *ngFor="let account of accounts; trackBy: trackByAccount">
+    <div class="account-icon">
+      <span class="material-icons">{{ account.icon }}</span>
+    </div>
+
+    <div class="account-copy">
+      <strong>{{ account.accountType }}</strong>
+      <span>{{ account.accountNumber }}</span>
+    </div>
+
+    <div class="account-amount">
+      <strong>
+        {{ hideBalance ? '••••••' : ('₹' + (account.balance | number:'1.0-0')) }}
+      </strong>
+      <span>
+        Available
+        {{ hideBalance ? '••••••' : ('₹' + (account.availableBalance | number:'1.0-0')) }}
+      </span>
+    </div>
+  </div>
+</section>
+
+<section class="home-panel">
+  <div class="section-heading">
+    <div>
+      <span>Activity</span>
+      <h2>Recent transactions</h2>
+    </div>
+    <a routerLink="/transactions">See all</a>
+  </div>
+
+  <div class="transaction-row" *ngFor="let transaction of recentTransactions; trackBy: trackByTransaction">
+    <div class="transaction-icon" [class.credit-icon]="transaction.type === 'credit'">
+      <span class="material-icons">{{ transaction.icon }}</span>
+    </div>
+
+    <div class="transaction-copy">
+      <strong>{{ transaction.merchant }}</strong>
+      <span>{{ transaction.description }}</span>
+    </div>
+
+    <div class="transaction-amount" [class.credit-amount]="transaction.type === 'credit'">
+      {{ transaction.type === 'credit' ? '+' : '-' }}₹{{ transaction.amount | number:'1.0-0' }}
+    </div>
+  </div>
+</section>
+
+<section class="home-panel">
+  <div class="section-heading">
+    <div>
+      <span>Scheduled</span>
+      <h2>Upcoming payments</h2>
+    </div>
+    <button type="button" class="manage-link">Manage</button>
+  </div>
+
+  <div class="payment-grid">
+    <article class="payment-card" *ngFor="let payment of upcomingPayments; trackBy: trackByPayment">
+      <div class="payment-card-top">
+        <span class="payment-icon">
+          <span class="material-icons">{{ payment.icon }}</span>
+        </span>
+        <span class="material-icons payment-more">more_horiz</span>
+      </div>
+
+      <strong>{{ payment.name }}</strong>
+      <span>{{ payment.dueDate }}</span>
+      <b>₹{{ payment.amount | number:'1.0-0' }}</b>
+    </article>
+  </div>
+</section>
+
+<section class="banking-banner">
+  <div>
+    <span>Fixed deposit offer</span>
+    <h2>Grow your savings with attractive returns</h2>
+    <p>Explore flexible deposit plans designed around your goals.</p>
+
+    <button type="button">
+      Explore deposits
+      <span class="material-icons">arrow_forward</span>
+    </button>
+  </div>
+
+  <span class="banner-icon material-icons">savings</span>
+</section>

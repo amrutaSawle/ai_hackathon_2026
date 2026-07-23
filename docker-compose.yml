@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-finance_ai}
+      POSTGRES_USER: ${POSTGRES_USER:-finance_ai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  migrate:
+    build: ./finance-ai-backend
+    command: ["alembic", "upgrade", "head"]
+    environment: &backend-environment
+      DATABASE_URL: postgresql://${POSTGRES_USER:-finance_ai}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-finance_ai}
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      POSTGRES_USER: ${POSTGRES_USER:-finance_ai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-finance_ai}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  backend:
+    build: ./finance-ai-backend
+    environment: *backend-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    expose:
+      - "8000"
+
+  frontend:
+    build: ./finance-ai-frontend
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "${APP_PORT:-8080}:8080"
+
+volumes:
+  postgres-data:

@@ -117,8 +117,7 @@
   position: fixed;
   inset: auto 0 0;
   z-index: 60;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  display: flex;
   min-height: 72px;
   padding:
     7px 8px
@@ -136,6 +135,8 @@
   justify-content: center;
   flex-direction: column;
   gap: 3px;
+  flex: 1 1 0;
+  min-width: 0;
   color: #98a2b3;
   text-decoration: none;
 }
@@ -192,4 +193,15 @@
     transform: translateX(-50%);
     border-radius: 0 0 30px 30px;
   }
+}
+/* .ai-insights-layout {
+  width: 100%;
+  max-width: none;
+} */
+/* AI Insights must be allowed to display its scaled desktop canvas */
+.app-content:has(app-ai-insights) {
+  max-width: none;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
 }

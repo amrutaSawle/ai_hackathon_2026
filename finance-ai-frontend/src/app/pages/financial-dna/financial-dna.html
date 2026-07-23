@@ -1,0 +1,313 @@
+<section class="page-shell">
+  <header class="page-header">
+    <div class="header-left">
+      <a routerLink="/home" class="back-button" aria-label="Back to home">←</a>
+      <div>
+        <p class="overline">AI financial profile</p>
+        <h1>Financial DNA</h1>
+      </div>
+    </div>
+
+    <button type="button" class="refresh-button" (click)="load()" aria-label="Refresh">
+      ↻
+    </button>
+  </header>
+
+  <div *ngIf="loading" class="loading-card">
+    <div class="spinner"></div>
+    <h2>Building your Financial DNA</h2>
+    <p>Analysing your transactions and spending behaviour.</p>
+  </div>
+
+  <ng-container *ngIf="!loading">
+    <div *ngIf="usingDemoData" class="demo-banner">
+      <span>ⓘ</span>
+      <p>Sample data is shown because the backend endpoint is currently unavailable.</p>
+    </div>
+
+    <section class="identity-card">
+      <div class="identity-copy">
+        <span class="identity-label">Your primary personality</span>
+        <h2>{{ dna.primaryPersonality }}</h2>
+        <p>{{ dna.summary }}</p>
+
+        <div class="identity-meta">
+          <span>{{ dna.updatedAt }}</span>
+          <i></i>
+          <span>{{ dna.transactionsAnalysed }} transactions analysed</span>
+        </div>
+      </div>
+
+      <div class="score">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="score-track" cx="60" cy="60" r="52"></circle>
+          <circle
+            class="score-value"
+            cx="60"
+            cy="60"
+            r="52"
+            [attr.stroke-dasharray]="circumference"
+            [attr.stroke-dashoffset]="scoreOffset">
+          </circle>
+        </svg>
+
+        <div class="score-text">
+          <strong>{{ dna.personalityScore }}%</strong>
+          <span>AI match</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="summary-grid">
+      <article>
+        <span class="summary-icon">◎</span>
+        <div>
+          <small>AI confidence</small>
+          <strong>{{ dna.confidence }}%</strong>
+        </div>
+      </article>
+
+      <article>
+        <span class="summary-icon">₹</span>
+        <div>
+          <small>Analysed spend</small>
+          <strong>{{ formatCurrency(dna.totalSpend) }}</strong>
+        </div>
+      </article>
+
+      <article>
+        <span class="summary-icon">↗</span>
+        <div>
+          <small>Top behaviour</small>
+          <strong>{{ dna.primaryPersonality }}</strong>
+        </div>
+      </article>
+    </section>
+
+    <section class="bank-card profile-card">
+      <div class="section-title">
+        <div>
+          <p class="overline">Your profile</p>
+          <h2>Personality mix</h2>
+        </div>
+        <span class="live-badge">Live profile</span>
+      </div>
+
+      <div class="profile-layout">
+        <div class="visual-panel">
+          <div class="dna-visual">
+            <div class="visual-ring outer-ring"></div>
+            <div class="visual-ring inner-ring"></div>
+
+            <div class="visual-center">
+              <small>AI</small>
+              <strong>DNA</strong>
+            </div>
+
+            <button
+              *ngFor="let trait of dna.traits | slice:0:4; let i = index; trackBy: trackByName"
+              type="button"
+              class="visual-node"
+              [class.node-top]="i === 0"
+              [class.node-right]="i === 1"
+              [class.node-bottom]="i === 2"
+              [class.node-left]="i === 3"
+              [class.selected]="selectedTraitIndex === i"
+              (click)="selectTrait(i)">
+             <span class="material-icons">{{ trait.icon }}</span>
+             <small>{{ getShortTraitName(trait.name) }}</small>
+            </button>
+          </div>
+        </div>
+
+        <div class="traits-panel">
+          <button
+            *ngFor="let trait of dna.traits; let i = index; trackBy: trackByName"
+            type="button"
+            class="trait-item"
+            [class.selected]="selectedTraitIndex === i"
+            (click)="selectTrait(i)">
+           <span class="trait-icon material-icons">
+  {{ trait.icon }}
+</span>
+
+            <span class="trait-details">
+              <span class="trait-heading">
+                <strong>{{ trait.name }}</strong>
+                <b>{{ trait.score }}%</b>
+              </span>
+
+              <span class="bar-track">
+                <span class="bar-fill" [style.width.%]="trait.score"></span>
+              </span>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div class="trait-reason">
+       <span class="reason-icon material-icons">
+  {{ selectedTrait.icon }}
+</span>
+        <div>
+          <small>Why this trait fits you</small>
+          <h3>{{ selectedTrait.name }}</h3>
+          <p>{{ selectedTrait.reason }}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="bank-card">
+      <div class="section-title">
+        <div>
+          <p class="overline">AI evidence</p>
+          <h2>What shaped this profile</h2>
+        </div>
+      </div>
+
+      <div class="evidence-grid">
+        <article *ngFor="let item of dna.evidence; trackBy: trackByName" class="evidence-item">
+          <span class="evidence-icon material-icons">{{ item.icon }}</span>
+          <small>{{ item.label }}</small>
+          <strong>{{ item.value }}</strong>
+          <p>{{ item.helper }}</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="coach-section">
+      <div class="coach-title">
+        <span>✦</span>
+        <div>
+          <p class="overline">AI Coach</p>
+          <h2>Your next best action</h2>
+        </div>
+      </div>
+
+      <p class="coach-message">{{ dna.coach.message }}</p>
+
+      <div class="recommended-product">
+        <div>
+          <small>Recommended for your profile</small>
+          <strong>{{ dna.coach.recommendedCard }}</strong>
+        </div>
+        <span>→</span>
+      </div>
+
+      <div class="coach-values">
+        <article>
+          <small>Estimated yearly value</small>
+          <strong>{{ formatCurrency(dna.coach.yearlyBenefit) }}</strong>
+        </article>
+        <article>
+          <small>Extra reward points</small>
+          <strong>+{{ dna.coach.rewardPoints | number }}</strong>
+        </article>
+      </div>
+
+      <button type="button" class="primary-action">View recommendation</button>
+    </section>
+
+    <div class="two-column">
+      <section class="bank-card">
+        <div class="section-title">
+          <div>
+            <p class="overline">Spending pattern</p>
+            <h2>Top categories</h2>
+          </div>
+        </div>
+
+        <div class="category-list">
+          <article *ngFor="let category of dna.categories; trackBy: trackByName" class="category-item">
+            <span class="category-icon material-icons">{{ category.icon }}</span>
+
+            <div class="category-body">
+              <div class="category-heading">
+                <strong>{{ category.name }}</strong>
+                <span>{{ formatCurrency(category.amount) }}</span>
+              </div>
+
+              <div class="bar-track">
+                <span class="bar-fill" [style.width.%]="category.percentage"></span>
+              </div>
+            </div>
+
+            <b>{{ category.percentage }}%</b>
+          </article>
+        </div>
+      </section>
+
+      <section class="prediction-section">
+        <p class="overline">Next prediction</p>
+        <h2>{{ dna.prediction.title }}</h2>
+        <strong class="prediction-amount">{{ formatCurrency(dna.prediction.amount) }}</strong>
+
+        <div class="prediction-details">
+          <article>
+            <small>Expected rewards</small>
+            <strong>+{{ dna.prediction.rewardPoints }} pts</strong>
+          </article>
+          <article>
+            <small>Confidence</small>
+            <strong>{{ dna.prediction.confidence }}%</strong>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <div class="two-column">
+      <section class="bank-card">
+        <div class="section-title">
+          <div>
+            <p class="overline">Your evolution</p>
+            <h2>Financial journey</h2>
+          </div>
+        </div>
+
+        <div class="timeline">
+          <article
+            *ngFor="let item of dna.journey; let last = last; trackBy: trackByPeriod"
+            class="timeline-item">
+            <div class="timeline-marker">
+              <span></span>
+              <i *ngIf="!last"></i>
+            </div>
+
+            <div>
+              <small>{{ item.period }}</small>
+              <strong>{{ item.personality }}</strong>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="bank-card">
+        <div class="section-title">
+          <div>
+            <p class="overline">Benchmark</p>
+            <h2>How you compare</h2>
+          </div>
+        </div>
+
+        <div class="comparison-list">
+          <article *ngFor="let item of dna.comparison; trackBy: trackByName" class="comparison-item">
+            <div>
+              <strong>{{ item.label }}</strong>
+              <span>You {{ item.userScore }}% · Average {{ item.averageScore }}%</span>
+            </div>
+
+            <div class="comparison-bars">
+              <span class="you-bar" [style.width.%]="item.userScore"></span>
+              <span class="average-bar" [style.width.%]="item.averageScore"></span>
+            </div>
+          </article>
+        </div>
+
+        <div class="comparison-legend">
+          <span><i class="you-dot"></i>You</span>
+          <span><i class="average-dot"></i>Average user</span>
+        </div>
+      </section>
+    </div>
+  </ng-container>
+</section>

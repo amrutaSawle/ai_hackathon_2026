@@ -171,7 +171,8 @@ def _classify_with_ai(
     ]
 
     client = OpenAI(api_key=OPENAI_API_KEY)
-
+    print("OpenAI Enabled:", bool(OPENAI_API_KEY))
+    print("Model:", OPENAI_MODEL)
     input_data = {
         "raw_transaction_description": raw_description,
         "normalized_merchant": normalized_name,

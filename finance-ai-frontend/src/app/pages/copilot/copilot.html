@@ -1,0 +1,303 @@
+<div class="copilot-page">
+  <section class="copilot-shell">
+    <header class="copilot-header">
+      <div class="assistant-avatar"><span class="material-icons">auto_awesome</span></div>
+      <div class="header-copy">
+        <div class="title-row">
+          <h1>Finance AI Copilot</h1>
+          <span class="status-badge"><span class="status-dot"></span>Online</span>
+        </div>
+        <p>Ask anything about your money</p>
+      </div>
+    </header>
+
+    <main #messageContainer class="messages-container">
+      <div
+        *ngFor="let message of messages"
+        class="message-row"
+        [class.user-row]="message.sender === 'user'"
+        [class.assistant-row]="message.sender === 'assistant'"
+      >
+        <div *ngIf="message.sender === 'assistant'" class="message-avatar">
+          <span class="material-icons">auto_awesome</span>
+        </div>
+
+        <div
+          class="message-content"
+          [class.user-message]="message.sender === 'user'"
+          [class.assistant-message]="message.sender === 'assistant'"
+          [class.error-message]="message.error"
+        >
+          <p class="message-text">{{ message.text }}</p>
+          <div *ngIf="message.intent" class="intent-chip">{{ formatLabel(message.intent) }}</div>
+
+          <!-- TOTAL SPEND -->
+          <section *ngIf="getResponseType(message) === 'TOTAL_SPEND'" class="rich-card total-spend-card">
+            <div class="total-spend-header">
+              <div>
+                <span class="eyebrow">Total recorded spending</span>
+                <div class="total-spend-amount">{{ formatCurrency(getTotalSpendData(message.data).totalSpend) }}</div>
+              </div>
+              <div class="total-spend-icon"><span class="material-icons">account_balance_wallet</span></div>
+            </div>
+
+            <div class="top-category-highlight">
+              <div><span>Top category</span><strong>{{ getTotalSpendData(message.data).topCategory }}</strong></div>
+              <span class="material-icons">trending_up</span>
+            </div>
+
+            <div *ngIf="getTotalSpendData(message.data).categories.length > 0" class="total-category-list">
+              <div *ngFor="let category of getTotalSpendData(message.data).categories" class="total-category-row">
+                <div class="total-category-heading">
+                  <span>{{ category.category }}</span>
+                  <strong>{{ formatCurrency(category.amount) }}</strong>
+                </div>
+                <div class="total-category-progress-row">
+                  <div class="total-category-track">
+                    <div class="total-category-fill" [style.width.%]="clampPercentage(category.percentage)"></div>
+                  </div>
+                  <span>{{ formatPercentage(category.percentage) }}</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- CATEGORY SPEND -->
+          <section *ngIf="getResponseType(message) === 'CATEGORY_SPEND'" class="rich-card category-spend-card">
+            <div class="category-spend-heading">
+              <div>
+                <span class="eyebrow">Category spending</span>
+                <h3>{{ getCategorySpendData(message.data).category }}</h3>
+              </div>
+              <div class="category-spend-icon"><span class="material-icons">payments</span></div>
+            </div>
+
+            <div class="category-spend-total">{{ formatCurrency(getCategorySpendData(message.data).total) }}</div>
+
+            <div class="category-spend-stats">
+              <div>
+                <span>Transactions</span>
+                <strong>{{ getCategorySpendData(message.data).transactionCount }}</strong>
+              </div>
+              <div>
+                <span>Average transaction</span>
+                <strong>
+                  {{ formatCurrency(
+                    getCategorySpendData(message.data).transactionCount > 0
+                      ? getCategorySpendData(message.data).total / getCategorySpendData(message.data).transactionCount
+                      : 0
+                  ) }}
+                </strong>
+              </div>
+            </div>
+
+            <div *ngIf="getCategorySpendData(message.data).merchantBreakdown.length > 0" class="embedded-merchants">
+              <div class="embedded-section-title">Merchant breakdown</div>
+              <div
+                *ngFor="let merchant of getCategorySpendData(message.data).merchantBreakdown; let index = index"
+                class="merchant-row"
+              >
+                <div class="merchant-left">
+                  <div class="merchant-rank">{{ index + 1 }}</div>
+                  <div class="merchant-details"><strong>{{ merchant.merchant }}</strong><span>Merchant spend</span></div>
+                </div>
+                <strong class="merchant-amount">{{ formatCurrency(merchant.amount) }}</strong>
+              </div>
+            </div>
+          </section>
+
+          <!-- TOP CATEGORY -->
+          <section *ngIf="getResponseType(message) === 'TOP_CATEGORY'" class="rich-card top-category-card">
+            <div class="rich-card-heading">
+              <div><span class="eyebrow">Biggest spending area</span><h3>{{ getTopCategoryData(message.data).category }}</h3></div>
+              <div class="category-icon"><span class="material-icons">trending_up</span></div>
+            </div>
+            <div class="top-category-value">{{ formatCurrency(getTopCategoryData(message.data).amount) }}</div>
+            <div class="progress-header">
+              <span>Share of spending</span>
+              <strong>{{ formatPercentage(getTopCategoryData(message.data).percentage) }}</strong>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" [style.width.%]="clampPercentage(getTopCategoryData(message.data).percentage)"></div>
+            </div>
+          </section>
+
+          <!-- SPENDING BREAKDOWN -->
+          <section *ngIf="getResponseType(message) === 'SPENDING_BREAKDOWN'" class="rich-card spending-breakdown-card">
+            <div class="section-heading">
+              <div><span class="eyebrow">Spending analysis</span><h3>Category breakdown</h3></div>
+              <span class="material-icons section-icon">bar_chart</span>
+            </div>
+            <div class="category-list">
+              <div *ngFor="let item of getSpendingBreakdown(message.data)" class="category-row">
+                <div class="category-row-header">
+                  <div class="category-name"><span class="category-dot"></span>{{ item.category }}</div>
+                  <strong>{{ formatCurrency(item.amount) }}</strong>
+                </div>
+                <div class="category-progress-line">
+                  <div class="category-progress-track">
+                    <div class="category-progress-fill" [style.width.%]="clampPercentage(item.percentage)"></div>
+                  </div>
+                  <span>{{ formatPercentage(item.percentage) }}</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- MERCHANT BREAKDOWN -->
+          <section *ngIf="getResponseType(message) === 'MERCHANT_BREAKDOWN'" class="rich-card merchant-response-card">
+            <div class="section-heading">
+              <div><span class="eyebrow">Merchant analysis</span><h3>Merchant breakdown</h3></div>
+              <span class="material-icons section-icon">storefront</span>
+            </div>
+            <div class="merchant-breakdown">
+              <div *ngFor="let merchant of getMerchantResponse(message.data); let index = index" class="merchant-row">
+                <div class="merchant-left">
+                  <div class="merchant-rank">{{ index + 1 }}</div>
+                  <div class="merchant-details"><strong>{{ merchant.merchant }}</strong><span>Merchant spend</span></div>
+                </div>
+                <strong class="merchant-amount">{{ formatCurrency(merchant.amount) }}</strong>
+              </div>
+            </div>
+          </section>
+
+          <!-- TRIPS -->
+          <section *ngIf="getResponseType(message) === 'TRIPS'" class="trip-list">
+            <article *ngFor="let trip of getTrips(message.data)" class="rich-card trip-card">
+              <div class="trip-card-top">
+                <div class="trip-icon"><span class="material-icons">flight</span></div>
+                <div class="trip-main">
+                  <span class="eyebrow">{{ formatLabel(trip.eventType || 'Travel memory') }}</span>
+                  <h3>{{ trip.title }}</h3>
+                  <div class="trip-meta">
+                    <span *ngIf="trip.location"><span class="material-icons">location_on</span>{{ trip.location }}</span>
+                    <span *ngIf="trip.startDate || trip.endDate">
+                      <span class="material-icons">calendar_month</span>
+                      {{ trip.startDate }}<ng-container *ngIf="trip.startDate && trip.endDate"> – </ng-container>{{ trip.endDate }}
+                    </span>
+                  </div>
+                </div>
+                <strong class="trip-total">{{ formatCurrency(trip.totalAmount) }}</strong>
+              </div>
+              <p *ngIf="trip.summary" class="trip-summary">{{ trip.summary }}</p>
+              <div class="trip-stats">
+                <div><span>Transactions</span><strong>{{ trip.transactionCount }}</strong></div>
+                <div><span>Total spent</span><strong>{{ formatCurrency(trip.totalAmount) }}</strong></div>
+              </div>
+              <div *ngIf="trip.merchants.length > 0" class="trip-merchants">
+                <div *ngFor="let merchant of trip.merchants" class="compact-merchant-row">
+                  <span>{{ merchant.merchant }}</span><strong>{{ formatCurrency(merchant.amount) }}</strong>
+                </div>
+              </div>
+            </article>
+            <div *ngIf="getTrips(message.data).length === 0" class="empty-rich-state">
+              <span class="material-icons">luggage</span><p>No travel memories were found.</p>
+            </div>
+          </section>
+
+          <!-- CARD RECOMMENDATION -->
+          <ng-container *ngIf="getResponseType(message) === 'CARD_RECOMMENDATION' && getCardRecommendation(message.data) as card">
+            <section class="rich-card recommendation-card">
+              <div class="recommendation-label"><span class="material-icons">workspace_premium</span>Recommended for you</div>
+              <div class="bank-card-preview">
+                <div class="bank-card-brand"><span class="bank-logo">DB</span><span>Deutsche Bank</span></div>
+                <div class="bank-card-name">{{ card.cardName }}</div>
+                <div class="bank-card-chip"></div>
+                <div class="bank-card-bottom"><span>Finance AI recommendation</span><span>•••• 2026</span></div>
+              </div>
+              <div class="recommendation-metrics">
+                <div><span>Match score</span><strong>{{ card.score }}%</strong></div>
+                <div><span>Confidence</span><strong>{{ card.confidence }}%</strong></div>
+                <div><span>Estimated rewards</span><strong>{{ formatCurrency(card.estimatedReward) }}</strong></div>
+                <div><span>Annual fee</span><strong>{{ formatCurrency(card.annualFee) }}</strong></div>
+              </div>
+              <div class="feature-chip-list">
+                <span class="feature-chip" [class.feature-enabled]="card.loungeAccess">
+                  <span class="material-icons">flight_class</span>
+                  Lounge {{ card.loungeAccess ? 'included' : 'not included' }}
+                </span>
+                <span class="feature-chip"><span class="material-icons">currency_exchange</span>{{ card.forexMarkup }}% forex markup</span>
+              </div>
+              <p *ngIf="card.reason" class="recommendation-reason">{{ card.reason }}</p>
+              <div class="net-value-row">
+                <span>Estimated net value</span>
+                <strong [class.positive-value]="card.netValue >= 0" [class.negative-value]="card.netValue < 0">
+                  {{ formatCurrency(card.netValue) }}
+                </strong>
+              </div>
+            </section>
+          </ng-container>
+
+          <!-- GENERIC SUMMARY -->
+          <div *ngIf="getResponseType(message) === 'SUMMARY'" class="insight-card">
+            <ng-container *ngFor="let entry of getDataEntries(message.data)">
+              <div *ngIf="isMerchantBreakdown(entry[1]); else normalInsight" class="merchant-breakdown">
+                <div *ngFor="let merchant of getMerchantBreakdown(entry[1]); let index = index" class="merchant-row">
+                  <div class="merchant-left">
+                    <div class="merchant-rank">{{ index + 1 }}</div>
+                    <div class="merchant-details"><strong>{{ merchant.merchant }}</strong><span>Merchant spend</span></div>
+                  </div>
+                  <strong class="merchant-amount">{{ formatCurrency(merchant.amount) }}</strong>
+                </div>
+              </div>
+              <ng-template #normalInsight>
+                <div class="insight-item">
+                  <span class="insight-label">{{ formatLabel(entry[0]) }}</span>
+                  <strong class="insight-value">{{ formatValue(entry[1]) }}</strong>
+                </div>
+              </ng-template>
+            </ng-container>
+          </div>
+
+          <!-- FALLBACK -->
+          <section *ngIf="getResponseType(message) === 'FALLBACK'" class="rich-card fallback-card">
+            <div class="fallback-icon"><span class="material-icons">auto_awesome</span></div>
+            <div><h3>Try asking another way</h3><p>I can analyse total spending, categories, merchants, trips and card recommendations.</p></div>
+          </section>
+
+          <div *ngIf="message.suggestions && message.suggestions.length > 0" class="suggestions">
+            <p class="suggestions-title">Try asking</p>
+            <div class="suggestion-list">
+              <button
+                *ngFor="let suggestion of message.suggestions"
+                type="button"
+                class="suggestion-chip"
+                (click)="sendSuggestion(suggestion)"
+              >
+                {{ suggestion }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="isLoading" class="message-row assistant-row">
+        <div class="message-avatar"><span class="material-icons">auto_awesome</span></div>
+        <div class="typing-card"><span></span><span></span><span></span></div>
+      </div>
+    </main>
+
+    <footer class="composer-section">
+      <div class="composer">
+        <textarea
+          [(ngModel)]="userMessage"
+          rows="1"
+          placeholder="Ask about your spending..."
+          aria-label="Finance AI question"
+          [disabled]="isLoading"
+          (keydown)="handleEnter($event)"
+        ></textarea>
+        <button
+          type="button"
+          class="send-button"
+          aria-label="Send message"
+          [disabled]="!userMessage.trim() || isLoading"
+          (click)="sendMessage()"
+        >
+          <span *ngIf="!isLoading" class="material-icons">arrow_upward</span>
+          <span *ngIf="isLoading" class="button-loader"></span>
+        </button>
+      </div>
+    </footer>
+  </section>
+</div>

@@ -27,7 +27,7 @@ export class Spending implements OnInit {
     this.errorMessage = '';
 
     this.http
-      .get<any>('http://localhost:8000/api/advisor/user/1')
+      .get<any>('/api/advisor/user/1')
       .subscribe({
         next: (response) => {
           this.advisorResult = response;
@@ -44,7 +44,7 @@ export class Spending implements OnInit {
   private loadTransactions(): void {
     this.http
       .get<any[]>(
-  'http://localhost:8000/api/transactions/user/1/with-analysis')
+  '/api/transactions/user/1/with-analysis')
       .subscribe({
         next: (response) => {
           this.transactions = [...response].sort(

@@ -7,6 +7,7 @@ from app.models.reward_rule import RewardRule
 from app.models.scoring_weight import ScoringWeight
 from app.models.spending_category import SpendingCategory
 from app.models.merchant_category import MerchantCategory
+from app.models.transaction_ai_analysis import TransactionAIAnalysis
 
 db = SessionLocal()
 

@@ -5,6 +5,8 @@ from sqlalchemy import pool
 
 from alembic import context
 from app.db.database import Base
+import os
+import sys
 import app.models.user
 import app.models.transaction
 import app.models.deutsche_bank_card
@@ -16,9 +18,23 @@ import app.models.transaction_ai_analysis
 import app.models.financial_event
 import app.models.financial_event_transaction
 
+PROJECT_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..")
+)
+
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+    
+import app.models.conversation_message
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+# Containers supply DATABASE_URL at runtime; retain alembic.ini for local
+# development when the variable is not set.
+database_url = os.getenv("DATABASE_URL")
+if database_url:
+    config.set_main_option("sqlalchemy.url", database_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

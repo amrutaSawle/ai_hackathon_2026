@@ -1,0 +1,450 @@
+<div class="page">
+
+<div class="topHeader">
+
+<!-- <div class="logo">
+
+🏦 SBI YONO
+
+</div> -->
+
+<div class="title">
+
+AI Scam Shield
+
+</div>
+
+<div class="subtitle">
+
+Protecting your money before fraud happens
+
+</div>
+
+</div>
+<div class="dashboard">
+
+  <div class="card">
+
+      <h3>Transactions Today</h3>
+
+      <h1>{{transactionsToday}}</h1>
+
+  </div>
+
+  <div class="card">
+
+      <h3>Blocked Frauds</h3>
+
+      <h1>{{blockedFrauds}}</h1>
+
+  </div>
+
+  <div class="card">
+
+      <h3>AI Accuracy</h3>
+
+      <h1>{{modelAccuracy}}%</h1>
+
+  </div>
+
+  <div class="card">
+
+      <h3>System</h3>
+
+      <h1 class="online">
+
+          {{systemStatus}}
+
+      </h1>
+
+  </div>
+
+</div>
+
+<div class="transactionForm">
+
+    <h2>New Transaction</h2>
+
+    <div class="formGrid">
+
+        <div>
+
+            <label>Beneficiary Name</label>
+
+            <input
+                type="text"
+                [(ngModel)]="payment.beneficiary_name"
+                placeholder="John Smith">
+
+        </div>
+
+        <div>
+
+            <label>IBAN / Account Number</label>
+
+            <input
+                type="text"
+                placeholder="DE89370400440532013000"
+                [(ngModel)]="payment.beneficiary_account">
+
+        </div>
+
+        <div>
+
+            <label>Amount</label>
+
+            <input
+                type="number"
+                [(ngModel)]="payment.transaction_amount">
+        </div>
+
+        <div>
+
+            <label>Transaction Type</label>
+
+            <select
+                [(ngModel)]="payment.transaction_type">
+
+                <option value="transfer">Transfer</option>
+                <option value="payment">Payment</option>
+                <option value="deposit">Deposit</option>
+                <option value="withdrawal">Withdrawal</option>
+
+            </select>
+
+        </div>
+
+        <div>
+
+            <label>Transaction Time</label>
+
+            <input
+                type="text"
+                placeholder="22:30"
+                [(ngModel)]="payment.transaction_time">
+
+        </div>
+
+        <div>
+            <label>Location</label>
+            <select
+                [(ngModel)]="payment.transaction_location">
+                <option>Berlin</option>
+                <option>Frankfurt</option>
+                <option>Munich</option>
+                <option>Hamburg</option>
+                <option>Paris</option>
+                <option>Amsterdam</option>
+                <option>Zurich</option>
+                <option>Vienna</option>                
+            </select>
+        </div>
+        <div>
+            <label>Device</label>
+            <select
+                [(ngModel)]="payment.device_type">
+
+                <option>mobile</option>
+                <option>desktop</option>
+                <option>ATM</option>
+
+            </select>
+        </div>
+        <div>
+            <label>Previous Transactions</label>
+            <input
+                type="number"
+                [(ngModel)]="payment.previous_transactions_count">
+
+        </div>
+
+        <div>
+            <label>First time paying this beneficiary <input type="checkbox" [(ngModel)]="payment.new_beneficiary"></label>
+            
+        </div>
+    </div>
+
+    <button
+        class="analyzeBtn"
+        (click)="checkFraud()"
+        [disabled]="loading">
+
+        {{loading?'Analyzing...':'Analyze Transaction'}}
+
+    </button>
+
+</div>
+
+<div class="riskCard">
+
+    <h2>AI Risk Analysis</h2>
+
+    <div class="riskCircle"
+         [style.--progress]="riskPercentage"
+         [style.--color]="circleColor">
+
+        <div class="innerCircle">
+
+            <h1>{{riskPercentage}}%</h1>
+
+            <span>{{riskMessage}}</span>
+
+        </div>
+
+    </div>
+    <div *ngIf="loading" class="loading">
+
+    🤖 AI Model is analysing transaction...
+
+</div>
+    <div class="predictionCard" *ngIf="response">
+
+    <h2>AI Prediction</h2>
+
+    <div class="predictionResult"
+
+        [style.color]="circleColor">
+
+        {{response?.prediction==1
+
+        ? '🚨 FRAUD DETECTED'
+
+        : '✅ GENUINE TRANSACTION'}}
+
+        </div>
+
+    <div class="probability">
+
+        Fraud Probability
+
+        <strong>
+
+            {{response.aiScore}}%
+
+        </strong>
+
+    </div>
+
+    <div class="recommendation">
+
+        {{response.recommendation}}
+
+    </div>
+
+</div>
+<div class="summaryCard">
+
+<h2>
+
+Transaction Summary
+
+</h2>
+
+<table>
+
+<tr>
+
+<td>Amount</td>
+
+<td>
+
+₹ {{payment.transaction_amount}}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>Type</td>
+
+<td>
+
+{{payment.transaction_type}}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>Location</td>
+
+<td>
+
+{{payment.transaction_location}}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>Device</td>
+
+<td>
+
+{{payment.device_type}}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>Previous Txns</td>
+
+<td>
+
+{{payment.previous_transactions_count}}
+
+</td>
+
+</tr>
+
+</table>
+
+</div>
+
+</div>
+<div class="recommendCard">
+
+    <h2>AI Explanation</h2>
+
+    <p>
+        Amount Impact:
+        {{response?.aiExplanation?.transaction_amount}}
+    </p>
+
+    <p>
+        Customer History Impact:
+        {{response?.aiExplanation?.previous_transactions_count}}
+    </p>
+
+</div>
+<div class="recommendCard">
+
+    <h2>🤖 AI Confidence</h2>
+
+    <h1>{{response?.aiScore}}%</h1>
+
+    <p>{{response?.recommendation}}</p>
+    <div class="tip">
+        Always verify the beneficiary using a trusted phone number
+        before transferring money.
+    </div>
+</div>
+<h3>
+
+Prediction :
+
+{{response?.prediction==1 ? 'Fraud Detected' : 'Genuine Transaction'}}
+
+</h3>
+<div class="chartCard">
+
+    <h2>Fraud Factors</h2>
+
+    <div class="factor">
+
+        <span>Large Amount</span>
+
+        <div class="progress">
+            <div class="fill red" style="width:85%"></div>
+        </div>
+
+    </div>
+
+    <div class="factor">
+
+        <span>New Beneficiary</span>
+
+        <div class="progress">
+            <div class="fill orange" style="width:70%"></div>
+        </div>
+
+    </div>
+
+    <div class="factor">
+
+        <span>New Device</span>
+
+        <div class="progress">
+            <div class="fill blue" style="width:60%"></div>
+        </div>
+
+    </div>
+
+    <div class="factor">
+
+        <span>Urgent Request</span>
+
+        <div class="progress">
+            <div class="fill purple" style="width:80%"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="chartCard">
+
+    <h2>Risk Timeline</h2>
+
+    <div class="timeline">
+
+        <div class="bar" style="height:30px"></div>
+        <div class="bar" style="height:50px"></div>
+        <div class="bar" style="height:80px"></div>
+        <div class="bar" style="height:110px"></div>
+        <div class="bar" style="height:140px"></div>
+        <div class="bar" style="height:170px"></div>
+
+    </div>
+
+</div>
+
+<div class="reasonCard">
+
+<h2>
+
+Fraud Indicators
+
+</h2>
+
+<div
+class="reason"
+
+*ngFor="let item of response?.reasons">
+
+✔ {{item}}
+
+</div>
+
+</div>
+
+<div class="actionCard">
+
+<button
+class="danger">
+
+Cancel Payment
+
+</button>
+
+<button
+class="primary">
+
+Verify Beneficiary
+
+</button>
+
+<button>
+
+Proceed Anyway
+
+</button>
+
+</div>
+
+</div>

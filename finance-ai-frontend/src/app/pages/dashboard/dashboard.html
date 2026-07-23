@@ -1,1 +1,296 @@
-<p>dashboard works!</p>
+<div *ngIf="loading" class="loading">
+
+Loading AI Dashboard...
+
+</div>
+
+<div *ngIf="!loading">
+
+<!-- Existing Dashboard -->
+
+</div>
+<div class="page">
+
+<div class="header">
+
+<h2>🛡 AI Scam Shield</h2>
+
+<p>Protecting your banking experience with AI</p>
+
+</div>
+
+<div class="score-card">
+
+<div class="circle">
+
+{{dashboard?.protectionScore}}%
+
+</div>
+
+<h3>Protection Score</h3>
+
+<p>Your banking activity is secure.</p>
+
+</div>
+
+<div class="stats">
+
+<div class="stat-card">
+
+<h2>{{dashboard?.todayTransactions}}</h2>
+
+<p>Transactions</p>
+
+</div>
+
+<div class="stat-card blocked">
+
+<h2>{{dashboard?.blocked}}</h2>
+
+<p>Blocked</p>
+
+</div>
+
+<div class="stat-card safe">
+
+<h2>{{dashboard?.safe}}</h2>
+
+<p>Safe</p>
+
+</div>
+
+</div>
+
+<h3 class="section-title">
+
+AI Modules
+
+</h3>
+
+<div class="modules">
+
+<div class="module fraud">
+
+<div class="icon">
+
+🛡
+
+</div>
+
+<h4>Fraud Detection</h4>
+
+<p>Analyze payment risk</p>
+
+<button routerLink="/fraud">
+
+Open
+
+</button>
+
+</div>
+
+<div class="module">
+
+<div class="icon">
+
+🎙
+
+</div>
+
+<h4>Voice Scam</h4>
+
+<p>Detect AI voice cloning</p>
+
+<button>
+
+Coming Soon
+
+</button>
+
+</div>
+
+<div class="module">
+
+<div class="icon">
+
+📧
+
+</div>
+
+<h4>Email Scanner</h4>
+
+<p>Find phishing emails</p>
+
+<button>
+
+Coming Soon
+
+</button>
+
+</div>
+
+<div class="module">
+
+<div class="icon">
+
+👤
+
+</div>
+
+<h4>Account Takeover</h4>
+
+<p>Monitor login behaviour</p>
+
+<button>
+
+Coming Soon
+
+</button>
+
+</div>
+
+</div>
+
+<h3 class="section-title">
+
+Recent Alerts
+
+</h3>
+
+<div
+class="alert"
+*ngFor="let alert of dashboard?.recentAlerts">
+
+<div
+class="left">
+
+<span class="emoji">
+
+{{alert.icon}}
+
+</span>
+
+<div>
+
+<h4>
+
+{{alert.title}}
+
+</h4>
+
+<p>
+
+{{alert.status}}
+
+</p>
+
+</div>
+
+</div>
+
+<div
+class="status"
+
+[style.background]="alert.color">
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>
+
+Fraud Distribution
+
+</h3>
+
+<div
+*ngFor="let item of dashboard?.fraudDistribution">
+
+<div class="row">
+
+<span>
+
+{{item.name}}
+
+</span>
+
+<span>
+
+{{item.value}}%
+
+</span>
+
+</div>
+
+<div class="progress">
+
+<div
+class="fill"
+
+[style.width.%]="item.value"
+
+[style.background]="item.color">
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="card">
+
+<h3>
+
+Weekly Transactions
+
+</h3>
+
+<div class="bars">
+
+<div
+class="bar"
+
+*ngFor="let value of dashboard?.weeklyTrend; let i=index">
+
+<div
+class="column"
+
+[style.height.px]="value*18">
+
+</div>
+
+<p>
+
+{{days[i]}}
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+<div class="card">
+
+<h3>
+
+Top Fraud Countries
+
+</h3>
+
+<div
+class="country"
+
+*ngFor="let country of dashboard?.countries">
+
+🌍 {{country}}
+
+</div>
+
+</div>
+
+</div>

@@ -1,0 +1,423 @@
+<div class="insights-viewport">
+  <div class="insights-desktop-canvas">
+<div class="insights-page">
+  <!-- <header class="bank-navbar">
+    <div class="bank-logo-area">
+      <div class="bank-logo"><span></span></div>
+      <strong>Deutsche Bank</strong>
+    </div>
+
+    <nav class="bank-navigation">
+      <a href="#"><span class="nav-icon">⌂</span>Overview</a>
+      <a href="#"><span class="nav-icon">⇄</span>Transactions</a>
+      <a href="#"><span class="nav-icon">▣</span>Cards</a>
+      <a class="active" href="#"><span class="nav-icon">◉</span>Insights</a>
+    </nav>
+
+    <div class="navbar-profile">
+      <span class="secure-text">◇ Secure &amp; Encrypted</span>
+      <span class="notification">♧<small>2</small></span>
+      <div class="avatar">AM</div>
+      <strong>Amruta</strong>
+      <span>⌄</span>
+    </div>
+  </header> -->
+
+  <main class="page-content">
+    <section class="page-heading">
+      <div>
+        <h1>Good afternoon, Amruta <span class="wave">👋</span></h1>
+        <p>Here’s your AI-powered financial overview for today.</p>
+      </div>
+
+      <div class="heading-actions">
+        <!-- <button
+          type="button"
+          class="refresh-button"
+          [disabled]="refreshing"
+          (click)="refreshInsights()"
+        >
+          <span [class.spinning]="refreshing">↻</span>
+          {{ refreshing ? 'Refreshing...' : 'Refresh insights' }}
+        </button> -->
+        <span class="updated-text">◷ Last updated: Today, 02:30 PM</span>
+      </div>
+    </section>
+
+    <section class="page-state" *ngIf="loading">
+      <div class="loading-spinner"></div>
+      <h2>Analysing your spending</h2>
+      <p>Please wait while AI reviews your financial activity.</p>
+    </section>
+
+    <section class="page-state" *ngIf="!loading && errorMessage">
+      <div class="error-symbol">!</div>
+      <h2>Unable to load insights</h2>
+      <p>{{ errorMessage }}</p>
+      <button type="button" class="retry-button" (click)="loadInsights()">Try again</button>
+    </section>
+
+    <ng-container *ngIf="!loading && !errorMessage && insightsData">
+      <section class="overview-grid">
+        <article class="spending-card">
+          <div class="decorative-lines"></div>
+          <div class="card-top-line">
+            <span class="light-label">Total analysed spending</span>
+            <span class="info-circle">i</span>
+          </div>
+
+          <div class="main-spend-value">
+            ₹{{ summary?.total_spend | number:'1.0-0' }}
+          </div>
+
+          <div class="spend-divider"></div>
+
+          <div class="monthly-values">
+            <div>
+              <span>This month</span>
+              <strong>₹{{ summary?.current_month_spend | number:'1.0-0' }}</strong>
+            </div>
+            <div>
+              <span>Last month</span>
+              <strong>₹{{ summary?.previous_month_spend | number:'1.0-0' }}</strong>
+            </div>
+          </div>
+
+          <div class="account-footer">
+            <div><span class="account-icon">▣</span>Personal Finance Account</div>
+            <span>•••• 2026</span>
+          </div>
+        </article>
+
+        <article class="health-card">
+          <div class="card-top-line">
+            <span class="dark-label">AI financial health</span>
+            <span class="ai-chip">AI</span>
+          </div>
+
+          <h2>Spending Health Score</h2>
+
+          <div class="score-circle" [style.--score-progress]="healthProgressDegrees">
+            <div class="score-inner">
+              <strong>{{ financialHealthScore }}</strong>
+              <span>{{ financialHealthLabel }}</span>
+            </div>
+          </div>
+
+          <div class="health-footer">
+            <span class="green-dot"></span>
+            <span>Your spending is in good shape</span>
+            <strong>›</strong>
+          </div>
+        </article>
+
+        <article class="forecast-card">
+          <div class="forecast-heading">
+            <span class="forecast-icon">↗</span>
+            <span class="dark-label">Projected month-end spend</span>
+          </div>
+
+          <div class="forecast-value">
+            ₹{{ summary?.projected_month_end_spend | number:'1.0-0' }}
+          </div>
+
+          <p>Forecast based on your current daily spending rate.</p>
+
+          <div class="forecast-bottom">
+            <div class="progress-track">
+              <div class="progress-value" [style.width.%]="forecastProgress"></div>
+            </div>
+            <div class="progress-labels">
+              <span>Current</span>
+              <span>Month end</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="content-panel">
+        <div class="panel-header">
+          <h2>Key financial highlights</h2>
+          <button type="button" class="text-button">See all insights <span>→</span></button>
+        </div>
+
+        <div class="highlight-grid">
+          <article class="highlight-card" *ngIf="topMerchantInsight as merchant">
+            <div class="highlight-top">
+              <div class="highlight-icon">▦</div>
+              <div>
+                <span>Top merchant</span>
+                <h3>{{ merchant.metadata?.['merchant'] || merchant.title }}</h3>
+              </div>
+            </div>
+            <div class="highlight-value">
+  ₹{{ merchant.impact_amount || 0 | number:'1.0-0' }}
+</div>
+            <p>Highest merchant-level spending across analysed transactions.</p>
+            <button type="button" class="card-link">Merchant analysis <span>→</span></button>
+          </article>
+
+          <article class="highlight-card" *ngIf="largestTransactionInsight as largest">
+            <div class="highlight-top">
+              <div class="highlight-icon">₹</div>
+              <div>
+                <span>Largest transaction</span>
+                <h3>{{ largest.metadata?.['merchant'] || largest.title }}</h3>
+              </div>
+            </div>
+            <div class="highlight-value">
+  ₹{{ largest.impact_amount || 0 | number:'1.0-0' }}
+</div>
+            <p>Category: {{ largest.metadata?.['category'] || 'Not available' }}</p>
+            <button type="button" class="card-link">View transaction <span>→</span></button>
+          </article>
+
+          <article class="highlight-card dark-highlight">
+            <div class="highlight-top">
+              <div class="highlight-icon dark-icon">◇</div>
+              <div>
+                <span>Smart card usage</span>
+                <h3>Travel Card opportunity</h3>
+              </div>
+            </div>
+            <span class="reward-label">Potential rewards</span>
+            <div class="highlight-value">₹5,200</div>
+            <p>Use your travel-focused card for flights and hotel purchases to improve reward value.</p>
+            <button type="button" class="card-link dark-link">View recommendation <span>→</span></button>
+          </article>
+        </div>
+      </section>
+<section class="content-panel trend-panel">
+
+  <div class="trend-header">
+    <div>
+      <span class="trend-eyebrow">
+        Spending analytics
+      </span>
+
+      <h2>Monthly spending trend</h2>
+
+      <p>
+        Track how your spending has changed during
+        the last six months.
+      </p>
+    </div>
+
+    <div
+      class="trend-change"
+      *ngIf="monthlyTrend"
+      [ngClass]="trendDirection"
+    >
+      <span class="trend-change-icon">
+        {{
+          trendDirection === 'up'
+            ? '↗'
+            : trendDirection === 'down'
+              ? '↘'
+              : '→'
+        }}
+      </span>
+
+      <div>
+        <strong>{{ trendDirectionLabel }}</strong>
+        <span>compared with last month</span>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="trend-loading"
+    *ngIf="trendLoading"
+  >
+    <div class="trend-spinner"></div>
+
+    <span>Loading monthly trend...</span>
+  </div>
+
+  <div
+    class="trend-empty"
+    *ngIf="
+      !trendLoading &&
+      !trendError &&
+      !trendMonths.length
+    "
+  >
+    Not enough monthly spending data is available.
+  </div>
+
+  <div
+    class="trend-error"
+    *ngIf="!trendLoading && trendError"
+  >
+    {{ trendError }}
+
+    <button
+      type="button"
+      (click)="loadMonthlyTrend()"
+    >
+      Retry
+    </button>
+  </div>
+
+  <ng-container
+    *ngIf="
+      !trendLoading &&
+      !trendError &&
+      trendMonths.length
+    "
+  >
+    <div class="trend-summary-grid">
+
+      <article class="trend-summary-item">
+        <span>Six-month total</span>
+
+        <strong>
+          ₹{{
+            monthlyTrend?.total
+              | number:'1.0-0'
+          }}
+        </strong>
+      </article>
+
+      <article class="trend-summary-item">
+        <span>Monthly average</span>
+
+        <strong>
+          ₹{{
+            monthlyTrend?.average
+              | number:'1.0-0'
+          }}
+        </strong>
+      </article>
+
+      <article class="trend-summary-item">
+        <span>Highest month</span>
+
+        <strong>
+          {{
+            monthlyTrend?.highest_month?.month
+              || '—'
+          }}
+        </strong>
+
+        <small>
+          ₹{{
+            monthlyTrend?.highest_month?.amount
+              || 0
+              | number:'1.0-0'
+          }}
+        </small>
+      </article>
+
+    </div>
+
+    <div class="chart-container">
+
+      <div class="chart-y-axis">
+        <span>
+          ₹{{ trendMaximumAmount | number:'1.0-0' }}
+        </span>
+
+        <span>
+          ₹{{
+            trendMaximumAmount / 2
+              | number:'1.0-0'
+          }}
+        </span>
+
+        <span>₹0</span>
+      </div>
+
+      <div class="chart-area">
+        <div class="chart-grid-lines">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <div class="chart-bars">
+          <div
+            class="chart-column"
+            *ngFor="
+              let item of trendMonths;
+              trackBy: trackTrendMonth
+            "
+          >
+            <div class="bar-value">
+              ₹{{ item.amount | number:'1.0-0' }}
+            </div>
+
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                [style.height.%]="getBarHeight(item.amount)"
+              ></div>
+            </div>
+
+            <div class="bar-label">
+              <strong>{{ item.month }}</strong>
+              <span>{{ item.year }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+
+</section>
+      <section class="content-panel insights-panel">
+        <div class="insight-panel-header">
+          <h2>AI insights &amp; alerts</h2>
+
+          <div class="filter-buttons">
+            <button type="button" [class.active]="selectedFilter === 'all'" (click)="setFilter('all')">All</button>
+            <button type="button" [class.active]="selectedFilter === 'critical'" (click)="setFilter('critical')">
+              <span class="filter-dot critical"></span>Critical
+            </button>
+            <button type="button" [class.active]="selectedFilter === 'warning'" (click)="setFilter('warning')">
+              <span class="filter-dot warning"></span>Warning
+            </button>
+            <button type="button" [class.active]="selectedFilter === 'info'" (click)="setFilter('info')">
+              <span class="filter-dot info"></span>Info
+            </button>
+          </div>
+        </div>
+
+        <div class="insight-list">
+          <article
+            class="insight-row"
+            *ngFor="let insight of filteredInsights; trackBy: trackInsight"
+          >
+            <div class="row-icon" [ngClass]="insight.severity">
+              {{ getInsightIcon(insight.type) }}
+            </div>
+            <div class="row-content">
+              <h3>{{ insight.title }}</h3>
+              <p>{{ insight.message }}</p>
+            </div>
+            <span class="severity-pill" [ngClass]="insight.severity">
+              {{ getSeverityLabel(insight.severity) }}
+            </span>
+            <button type="button" class="chevron-button">›</button>
+          </article>
+
+          <div class="empty-filter-state" *ngIf="!filteredInsights.length">
+            No insights are available for this filter.
+          </div>
+        </div>
+      </section>
+
+      <section class="security-panel">
+        <div class="security-icon">◇</div>
+        <div>
+          <strong>Your data is safe with us</strong>
+          <p>We use bank-grade encryption to protect your financial information.</p>
+        </div>
+        <button type="button">Learn more <span>→</span></button>
+      </section>
+    </ng-container>
+  </main>
+</div>
+  </div>
+</div>
